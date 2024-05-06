@@ -1,0 +1,10 @@
+{
+  "localnet": [
+    {
+      "tokenSymbol": "SOL",
+      "mintAddress": "So11111111111111111111111111111111111111112",
+      "tokenName": "Solana",
+      "icon": "sol_native.ico"
+    }
+  ]
+}
