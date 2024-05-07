@@ -42,11 +42,6 @@ export const AddToLiquidity = () => {
     ownerWithdrawFeeDenominator: DEFAULT_DENOMINATOR,
   });
 
-  if (!publicKey) {
-    console.log("Please, connect to your wallet!");
-    return;
-  }
-
   const executeAction = async () => {
       if (A.account && B.account && A.mint && B.mint) {
         setPendingTx(true);
@@ -62,6 +57,11 @@ export const AddToLiquidity = () => {
             amount: B.convertAmount(),
           },
         ];
+
+        if (!publicKey) {
+          console.log("Please, connect to your wallet!");
+          return;
+        }
 
         addLiquidity(connection, publicKey, components, slippage, pool, options)
           .then(() => {
@@ -81,7 +81,7 @@ export const AddToLiquidity = () => {
       className="add-button"
       onClick={executeAction}
       disabled={
-        publicKey &&
+        (publicKey ? true : false) &&
         (pendingTx || !A.account || !B.account || A.account === B.account)
       }
       type="primary"
@@ -94,7 +94,7 @@ export const AddToLiquidity = () => {
         className="add-button"
         onClick={executeAction}
         disabled={
-          publicKey &&
+          (publicKey ? true : false) &&
           (pendingTx || !A.account || !B.account || A.account === B.account)
         }
         type="primary"
@@ -163,7 +163,7 @@ export const AddToLiquidity = () => {
           size="large"
           onClick={executeAction}
           disabled={
-            publicKey &&
+            (publicKey ? true : false) &&
             (pendingTx ||
               !A.account ||
               !B.account ||

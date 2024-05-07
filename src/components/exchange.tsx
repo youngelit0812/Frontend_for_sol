@@ -39,6 +39,14 @@ export const ExchangeView = (props: {}) => {
     setConnectTryFlag(false);
   };
 
+  const onConnectStatusHandler = () => {
+      if (publicKey) {
+        disconnect();
+      } else {
+        setConnectTryFlag(true);
+      }
+  };
+
   const TopBar = (
     <div className="App-Bar">
       <div className="App-Bar-left">
@@ -68,7 +76,7 @@ export const ExchangeView = (props: {}) => {
             <Button
               type="text"
               size="large"
-              onClick={publicKey ? disconnect() : setConnectTryFlag(true)}
+              onClick={onConnectStatusHandler}
               style={{ color: "#2abdd2" }}
             >
               Connect
