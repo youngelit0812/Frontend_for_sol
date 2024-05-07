@@ -33,7 +33,6 @@ export const ExchangeView = (props: {}) => {
   const TopBar = (
     <div className="App-Bar">
       <div className="App-Bar-left">
-        <div className="App-logo" />
       </div>
       <div className="App-Bar-right">
         <Button type="text" size="large" style={{ color: "#2abdd2" }}>
