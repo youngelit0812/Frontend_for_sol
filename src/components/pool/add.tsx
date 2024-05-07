@@ -25,7 +25,7 @@ import {
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 export const AddToLiquidity = () => {
-  const { publicKey, sendTransaction } = useWallet();  
+  const { publicKey } = useWallet();  
   const { connection } = useConnection();
   const [pendingTx, setPendingTx] = useState(false);
   const { A, B, setLastTypedAccount } = useCurrencyPairState();

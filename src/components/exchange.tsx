@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Button, Card, Popover } from "antd";
+import { SettingOutlined } from "@ant-design/icons";
+import { useWallet } from '@solana/wallet-adapter-react';
+
 import { TradeEntry } from "./trade";
 import { AddToLiquidity } from "./pool/add";
 import { PoolAccounts } from "./pool/view";
-import { useWallet } from "../utils/wallet";
 import { AccountInfo } from "./accountInfo";
 import { Settings } from './settings';
-import { SettingOutlined } from "@ant-design/icons";
+
+import { WalletModal } from "../modules/wallet_conntect_modal";
+import { WalletContext } from "../utils/wallet";
 
 export const ExchangeView = (props: {}) => {
-  const { connected, wallet } = useWallet();
+  const { connectTryFlag, setConnectTryFlag } = useContext(WalletContext);
+  const { publicKey, disconnect } = useWallet();
   const tabStyle: React.CSSProperties = { width: 120 };
   const tabList = [
     {
@@ -30,6 +35,10 @@ export const ExchangeView = (props: {}) => {
 
   const [activeTab, setActiveTab] = useState(tabList[0].key);
 
+  const onCloseModal = () => {
+    setConnectTryFlag(false);
+  };
+
   const TopBar = (
     <div className="App-Bar">
       <div className="App-Bar-left">
@@ -45,7 +54,7 @@ export const ExchangeView = (props: {}) => {
           </a>
         </Button>
         <AccountInfo />
-        {connected && (
+        {publicKey && (
           <Popover
             placement="bottomRight"
             content={<PoolAccounts />}
@@ -55,11 +64,11 @@ export const ExchangeView = (props: {}) => {
           </Popover>
         )}
         <div>
-          {!connected && (
+          {!publicKey && (
             <Button
               type="text"
               size="large"
-              onClick={connected ? wallet.disconnect : wallet.connect}
+              onClick={publicKey ? disconnect() : setConnectTryFlag(true)}
               style={{ color: "#2abdd2" }}
             >
               Connect
@@ -89,7 +98,7 @@ export const ExchangeView = (props: {}) => {
           </Popover>
         }
       </div>
-    </div>
+    </div>    
   );
 
   return (
@@ -109,6 +118,7 @@ export const ExchangeView = (props: {}) => {
       >
         {tabList.find((t) => t.key === activeTab)?.render()}
       </Card>
+      <WalletModal isShow={connectTryFlag} onClose={() => onCloseModal()} />
     </>
   );
 };
