@@ -5,6 +5,7 @@ import { AddToLiquidity } from "./pool/add";
 import { PoolAccounts } from "./pool/view";
 import { useWallet } from "../utils/wallet";
 import { AccountInfo } from "./accountInfo";
+import { Settings } from './settings';
 import { SettingOutlined } from "@ant-design/icons";
 
 export const ExchangeView = (props: {}) => {
