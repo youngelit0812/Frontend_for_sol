@@ -9,7 +9,7 @@ import {
   useSlippageConfig,
 } from "../../utils/connection";
 import { Spin } from "antd";
-import { SupplyOverview } from "./supplyOverview";
+// import { SupplyOverview } from "./supplyOverview";
 import { CurrencyInput } from "../currencyInput";
 import { DEFAULT_DENOMINATOR, PoolConfigCard } from "./config";
 import "./add.less";
@@ -152,10 +152,10 @@ export const AddToLiquidity = () => {
           B.setMint(item);
         }}
       />
-      <SupplyOverview
+      {/* <SupplyOverview
         mintAddress={[A.mintAddress, B.mintAddress]}
         pool={pool}
-      />
+      /> */}
       {pool && (
         <Button
           className="add-button"

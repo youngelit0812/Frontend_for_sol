@@ -1,7 +1,7 @@
 import { styled } from "styled-components";
-import titleLogoImg from "../../images/img/wallet_modal/room-logo.png";
-import logoPrimaryCaptionImg from "../../assets/img/wallet_modal/primary_caption.png";
-import logoSecondaryCaptionImg from "../../assets/img/wallet_modal/secondary_caption.png";
+import titleLogoImg from "../../images/wallet_modal/room-logo.png";
+import logoPrimaryCaptionImg from "../../images/wallet_modal/primary_caption.png";
+import logoSecondaryCaptionImg from "../../images/wallet_modal/secondary_caption.png";
 
 export const WalletModalWrapper = styled.div<{ $isshow: boolean }>`
   max-width: 500px;
