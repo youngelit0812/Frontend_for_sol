@@ -7,7 +7,7 @@ import {
 } from "@solana/web3.js";
 import { useEffect, useState } from "react";
 import { Token, MintLayout, AccountLayout } from "@solana/spl-token";
-import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import * as web3 from '@solana/web3.js'
 
 import { notify } from "./notifications";
@@ -39,8 +39,7 @@ import {
 const LIQUIDITY_TOKEN_PRECISION = 8;
 
 export const removeLiquidity = async (
-  connection: Connection,
-  wallet: any,
+  connection: Connection,  
   liquidityAmount: number,
   account: TokenAccount,
   pool?: PoolInfo
@@ -49,7 +48,7 @@ export const removeLiquidity = async (
     return;
   }
 
-  const { sendTransaction } = useWallet();
+  const { publicKey, sendTransaction } = useWallet();
 
   const minAmount0 = 0;
   const minAmount1 = 0;
@@ -76,10 +75,15 @@ export const removeLiquidity = async (
     AccountLayout.span
   );
 
+  if (!publicKey) {
+    console.log("Please, connect to wallet");
+    return;
+  }
+
   const toAccounts: PublicKey[] = [
     await findOrCreateAccountByMint(
-      wallet.publicKey,
-      wallet.publicKey,
+      publicKey,
+      publicKey,
       transaction,
       cleanupInstructions,
       accountRentExempt,
@@ -87,8 +91,8 @@ export const removeLiquidity = async (
       signers
     ),
     await findOrCreateAccountByMint(
-      wallet.publicKey,
-      wallet.publicKey,
+      publicKey,
+      publicKey,
       transaction,
       cleanupInstructions,
       accountRentExempt,
@@ -101,7 +105,7 @@ export const removeLiquidity = async (
       programIds().token,
       account.pubkey,
       authority,
-      wallet.publicKey,
+      publicKey,
       [],
       liquidityAmount
   ));
