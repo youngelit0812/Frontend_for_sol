@@ -9,7 +9,7 @@ import { PoolAccounts } from "./pool/view";
 import { AccountInfo } from "./accountInfo";
 import { Settings } from './settings';
 
-import { WalletModal } from "../modules/wallet_conntect_modal";
+import { WalletModal } from "./modals/wallet_connect_modal";
 import { WalletContext } from "../utils/wallet";
 
 export const ExchangeView = (props: {}) => {
@@ -74,7 +74,7 @@ export const ExchangeView = (props: {}) => {
               Connect
             </Button>
           )}
-          {connected && (
+          {publicKey && (
             <Popover
               placement="bottomRight"
               title="Wallet public key"

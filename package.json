@@ -50,6 +50,7 @@
   },
   "homepage": ".",
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/bn.js": "^4.11.6",
     "@types/bs58": "^4.0.1",
     "@types/identicon.js": "^2.3.0",
