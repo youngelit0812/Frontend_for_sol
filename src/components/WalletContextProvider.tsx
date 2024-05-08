@@ -1,6 +1,9 @@
 import React, { FC, ReactNode, useMemo } from 'react';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+// import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
 	CloverWalletAdapter,
 	PhantomWalletAdapter,
@@ -27,9 +30,8 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 	return (
 		<ConnectionProvider endpoint={endpoint}>
 			<WalletProvider wallets={wallets}>
-				<WalletModalProvider>
-					{children}
-				</WalletModalProvider>
+				{children}
+				<ToastContainer />
 			</WalletProvider>
 		</ConnectionProvider>
 	)
