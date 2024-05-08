@@ -1,11 +1,13 @@
-import React from "react";
-import "./App.less";
-import { Routes } from "./routes";
+import React, { useMemo } from "react";
+import WalletContextProvider from "./components/WalletContextProvider";
+import { CustomRoutes } from "./customRoutes";
 
 function App() {
   return (
     <div className="App">
-      <Routes />
+      <WalletContextProvider>
+        <CustomRoutes />
+      </WalletContextProvider>
     </div>
   );
 }

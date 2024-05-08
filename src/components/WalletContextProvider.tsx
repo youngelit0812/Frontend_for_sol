@@ -1,7 +1,6 @@
 import React, { FC, ReactNode, useMemo } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import * as web3 from '@solana/web3.js'
 import {
 	CloverWalletAdapter,
 	PhantomWalletAdapter,
@@ -36,4 +35,4 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 	)
 }
 
-export default WalletContextProvider
+export default WalletContextProvider;
