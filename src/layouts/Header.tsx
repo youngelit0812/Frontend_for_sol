@@ -57,7 +57,6 @@ export const Header: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("current publickey,", publicKey);
     onCloseModal();
   }, [publicKey]);
 
