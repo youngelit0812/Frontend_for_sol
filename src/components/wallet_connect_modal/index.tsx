@@ -23,11 +23,17 @@ type SidebarProps = {
 
 export const WalletModal: React.FC<SidebarProps> = ({ isShow, onClose }) => {
   const [connectList] = useState(connnectWalletList);
-  const { wallets, select } = useWallet();
+  const { connect, wallet, wallets, select } = useWallet();
 
   const selectWallet = (walletName: WalletName) => {
-    console.log("selectWallet!");
+    console.log("selectWallet!", walletName);
     select(walletName);
+    if (wallet) {
+      console.log("wallet selected");
+      connect();
+    } else {
+      console.log("Failed to select");
+    }
   };
 
   return (
