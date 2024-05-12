@@ -46,6 +46,7 @@ export const SetLiquidity: React.FC<SetLiquidityProps> = ({
         <Col className="gutter-row" span={14}>
           <Input
             placeholder="Amount"
+            defaultValue={0}
             onChange={handleChange}
             // onBlur={handleBlur}
             maxLength={10}

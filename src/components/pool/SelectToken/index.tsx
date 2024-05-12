@@ -92,7 +92,7 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
             {index == 0 && (
               <Input
                 placeholder="Amount"
-                value={0}
+                defaultValue={0}
                 onChange={(event) => {
                   handleAmountInput(event, index);
                 }}
@@ -104,7 +104,7 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
           <div style={cellStyle}>
             <Input
               placeholder="Weight"
-              value={0}
+              defaultValue={0}
               onChange={(event) => {
                 handleWeightInput(event, index);
               }}
