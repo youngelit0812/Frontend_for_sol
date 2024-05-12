@@ -70,14 +70,25 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const next = async () => {
     switch (current) {
       case 0:
-        for (let tokenAmount of tokenAmounts) {
-          if (tokenAmount <= 0) {
-            toast(`Please, input correct token amount`, {
-              theme: "dark",
-            });
+        let totalWeight = 0;
+        for (let tokenWeight of tokenWeights) {
+          totalWeight += tokenWeight;          
+        }
 
-            return;
-          }
+        if (totalWeight != 100) {
+          toast(`Please, input correct token weight. Sum of weights should be 100`, {
+            theme: "dark",
+          });
+
+          return;
+        }
+
+        if (tokenAmounts[0] <= 0) {
+          toast(`Please, input correct token amount`, {
+            theme: "dark",
+          });
+
+          return;
         }
 
         if (publicKey) {
