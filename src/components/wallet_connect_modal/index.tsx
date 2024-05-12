@@ -26,6 +26,7 @@ export const WalletModal: React.FC<SidebarProps> = ({ isShow, onClose }) => {
   const { wallets, select } = useWallet();
 
   const selectWallet = (walletName: WalletName) => {
+    console.log("selectWallet!");
     select(walletName);
   };
 
@@ -65,7 +66,7 @@ export const WalletModal: React.FC<SidebarProps> = ({ isShow, onClose }) => {
                   <ListItem
                     key={wallet.adapter.name}
                     onClick={() => {
-                      console.log(
+                                  console.log(
                         `${wallet.adapter.name} is not supported in your environment`
                       );
                       toast(
@@ -92,11 +93,12 @@ export const WalletModal: React.FC<SidebarProps> = ({ isShow, onClose }) => {
                 return (
                   <ListItem
                     key={item.label}
-                    onClick={() =>
+                    onClick={() => {
+                      console.log("Install the wallet!");
                       toast(`Please install the ${item.label} wallet`, {
                         theme: "dark",
                       })
-                    }
+                    }}
                   >
                     <img src={item.img} alt="" draggable="false" />
                     <span>{item.label}</span>

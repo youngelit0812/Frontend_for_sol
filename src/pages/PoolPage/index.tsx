@@ -60,7 +60,7 @@ const PoolData: PoolTableDataType[] = [
   },
 ];
 
-export const Pool: React.FC = () => {
+export const PoolPage: React.FC = () => {
   const [poolData, setPoolData] = useState(PoolData);
   const [showCreatePoolModal, setShowCreatePoolModal] = useState(false);
   const [showLPDetailModal, setShowLPDetailModal] = useState(false);
