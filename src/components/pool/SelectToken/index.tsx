@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Row, Col, Avatar, Button, Input, Popover, Modal, Radio } from "antd";
-import { PlusOutlined, CloseOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { TokenInfo } from "@solana/spl-token-registry";
 
 import { SPLTokenListContext } from "context/SPLTokenListContext";
@@ -14,20 +14,42 @@ const cellStyle: React.CSSProperties = {
   height: "fit-content",
 };
 
-const initialTokenAddressList: string[] = ["", ""];
+type SelectTokenProps = {
+  mintAddrList: string[];
+  setMintAddrList: (arg: string[]) => void;
+  tokenAmountList: number[];
+  setTokenAmountList: (arg: number[]) => void;
+  tokenWeightList: number[];
+  setTokenWeightList: (arg: number[]) => void;
+};
 
-export const SelectToken: React.FC = () => {
+export const SelectToken: React.FC<SelectTokenProps> = ({
+  mintAddrList,
+  setMintAddrList,
+  tokenAmountList,
+  setTokenAmountList,
+  tokenWeightList,
+  setTokenWeightList,
+}) => {
   const { tokenList } = useContext(SPLTokenListContext);
-  const [mintAddresss, setMintAddresss] = useState(initialTokenAddressList);
+
   const [activeTokenIndex, setActiveTokenIndex] = useState<number>(0);
   const [isShow, setIsShow] = useState(false);
 
-  const handleAddToken = () => {
-    setMintAddresss((prev) => [...prev, ""]);
+  const handleAddToken = () => {    
+    const pushedMintAddrList = mintAddrList;
+    pushedMintAddrList.push("");
+    setMintAddrList(pushedMintAddrList);
+  };
+
+  const handleAmountInput = (event: any, index: number) => {
+    tokenAmountList[index] = event?.target?.value;
+    setTokenAmountList(tokenAmountList);
   };
 
   const handleRemoveToken = (index: number) => {
-    setMintAddresss((prev) => prev.filter((_, i) => i !== index));
+    mintAddrList.splice(index);
+    setMintAddrList(mintAddrList);
   };
 
   const onCloseModal = () => {
@@ -41,29 +63,46 @@ export const SelectToken: React.FC = () => {
       <Row key={index} style={{ width: "100%" }}>
         <Col className="gutter-row" span={3}>
           <div style={cellStyle}>
-            {tokenInfo?(<Avatar src={tokenInfo.logoURI} />):(<Avatar />)}
+            {tokenInfo ? (
+              <Avatar src={tokenInfo.logoURI} size={40} />
+            ) : (
+              <Avatar size={40} />
+            )}
           </div>
         </Col>
         <Col className="gutter-row" span={5}>
           <div style={cellStyle}>
-            <Button type="text" onClick={() => {
-              setActiveTokenIndex(index);
-              setIsShow(true);              
-            }}>
-              {tokenInfo?tokenInfo.symbol:"TOKN"}
+            <Button
+              type="text"
+              onClick={() => {
+                setActiveTokenIndex(index);
+                setIsShow(true);
+              }}
+            >
+              {tokenInfo ? tokenInfo.symbol : "TOKN"}
             </Button>
           </div>
         </Col>
         <Col className="gutter-row" span={12}>
           <div style={cellStyle}>
-            <Input placeholder="Weight" />
+            <Input
+              placeholder="Amount"
+              onChange={(event) => {
+                handleAmountInput(event, index);
+              }}
+            />
           </div>
         </Col>
+        {/* <Col className="gutter-row" span={6}>
+          <div style={cellStyle}>            
+            <Input placeholder="Weight" />
+          </div>
+        </Col> */}
         <Col className="gutter-row" span={4}>
           <div style={cellStyle}>
             <Popover content="Remove">
               <Button
-                icon={<CloseOutlined />}
+                icon={<DeleteOutlined />}
                 onClick={() => handleRemoveToken(index)}
               />
             </Popover>
@@ -86,16 +125,29 @@ export const SelectToken: React.FC = () => {
         <Col className="gutter-row" span={16}>
           <div style={cellStyle}>
             <ColoredText fonttype="semiMidTiny" font_name="fantasy">
-              Weight
+              Amount
             </ColoredText>
           </div>
         </Col>
-        {mintAddresss.map(renderRow)}
+        {/* <Col className="gutter-row" span={10}>
+          <div style={cellStyle}>
+            <ColoredText fonttype="semiMidTiny" font_name="fantasy">
+              Weight
+            </ColoredText>
+          </div>
+        </Col> */}
+        {mintAddrList.map(renderRow)}
       </Row>
       <Popover content="New Token">
         <Button icon={<PlusOutlined />} onClick={handleAddToken} />
       </Popover>
-      <TokenSelectModal isShow={isShow} tokenIndex={activeTokenIndex} mintAddrList={mintAddresss} onSelectToken={setMintAddresss} onClose={() => onCloseModal()} />
+      <TokenSelectModal
+        isShow={isShow}
+        tokenIndex={activeTokenIndex}
+        mintAddrList={mintAddrList}
+        onSelectToken={setMintAddrList}
+        onClose={() => onCloseModal()}
+      />
     </TokenWrapper>
   );
 };
