@@ -8,6 +8,12 @@ export const TokensContainer = styled.div`
   margin-top: 1vh;
 `;
 
+export const TokenLabelContainer = styled.div`
+  display: flex;
+  flex-direction: column;  
+  margin-left: 1vw;
+`;
+
 export const TokenSelectModalWrapper = styled.div<{ $isshow: boolean }>`
   width: 50vw;
   height: 80vh;

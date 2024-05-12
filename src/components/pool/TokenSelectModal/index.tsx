@@ -7,6 +7,7 @@ import { SPLTokenListContext } from "context/SPLTokenListContext";
 
 import {
   TokensContainer,
+  TokenLabelContainer,
   TokenSelectModalWrapper,
   TokenSelectModalOverlay,
   CloseBtn,
@@ -80,14 +81,18 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
 
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
     if (info?.source === "input") {
-      console.log(value);
-      let filteredTokenList = new Map(
-        [...baseTokenListToDisplay].filter(
-          ([key, tokenInfo]) => tokenInfo.symbol === value
-        )
-      );
+      if (value === "") {
+        setBaseTokenListToDisplay(tokenList);
+      } else {
+        let filteredTokenList = new Map(
+          [...baseTokenListToDisplay].filter(([key, tokenInfo]) =>
+            tokenInfo.symbol.includes(value)
+          )
+        );
 
-      setBaseTokenListToDisplay(filteredTokenList);
+        setBaseTokenListToDisplay(filteredTokenList);
+      }
+
       setCurrentPage(1);
     }
   };
@@ -109,7 +114,7 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
           onSearch={onSearch}
           style={{ width: "40vw" }}
         />
-        <div style={{width: "100%", marginTop: '1vh'}}>
+        <div style={{ width: "100%", marginTop: "1vh" }}>
           <Pagination
             current={currentPage}
             onChange={handlePageChange}
@@ -119,24 +124,25 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
           />
         </div>
         <TokensContainer>
-          {displayTokenList.map(
-            ([address, { name, symbol, logoURI }]) => (
-              <div
-                key={address}
-                onClick={() =>
-                  onSelectTokenHandler(address, logoURI ? logoURI : "")
-                }
-                style={{ display: "flex", alignItems: "center" }}
-              >
-                <Avatar src={logoURI} size={40} />
-                <div style={{ marginLeft: "1vw" }}>
-                  <ColoredText fonttype="semiMidTiny" font_name="fantasy">
-                  {symbol}</ColoredText>
-                  <ColoredText fonttype="semiMidTiny" font_name="fantasy">{name}</ColoredText>
-                </div>
-              </div>
-            )
-          )}
+          {displayTokenList.map(([address, { name, symbol, logoURI }]) => (
+            <div
+              key={address}
+              onClick={() =>
+                onSelectTokenHandler(address, logoURI ? logoURI : "")
+              }
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <Avatar src={logoURI} size={40} />
+              <TokenLabelContainer>
+                <ColoredText fonttype="semiMidTiny" font_name="fantasy">
+                  {symbol}
+                </ColoredText>
+                <ColoredText fonttype="semiMidTiny" font_name="fantasy">
+                  {name}
+                </ColoredText>
+              </TokenLabelContainer>
+            </div>
+          ))}
         </TokensContainer>
       </TokenSelectModalWrapper>
       <TokenSelectModalOverlay $isshow={isShow} onClick={onClose} />
