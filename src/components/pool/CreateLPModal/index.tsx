@@ -5,6 +5,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { SelectToken } from "../SelectToken";
 import { SetLiquidity } from "../SetLiquidity";
+import { ConfirmCreateLP } from "../ConfirmCreateLP";
 import { checkTokenBalances } from "utils/walletUtil";
 import {
   CreateLPModalWrapper,
@@ -29,7 +30,13 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const [tokenWeights, setTokenWeights] = useState<number[]>([]);
   const [lpTokenAmount, setLpTokenAmount] = useState<number>(0);
 
-  
+  const addMintAddress = (newMintAddress: string) => {
+    setMintAddresss([...mintAddresss, newMintAddress]);
+  }
+
+  const removeMintAddress = (indexToRemove: number) => {
+    setMintAddresss(mintAddresss.filter((_, index) => index !== indexToRemove));
+  }
 
   const createLPSteps = useMemo(
     () => [
@@ -39,6 +46,8 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           <SelectToken
             mintAddrList={mintAddresss}
             setMintAddrList={setMintAddresss}
+            addMintAddrList={addMintAddress}
+            removeMintAddrList={removeMintAddress}
             tokenAmountList={tokenAmounts}
             setTokenAmountList={setTokenAmounts}
             tokenWeightList={tokenWeights}
@@ -52,7 +61,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
       },
       {
         title: "Confirm",
-        content: "Last-content",
+        content: <ConfirmCreateLP mintAddrList={mintAddresss} tokenAmountList={tokenAmounts} lpTAmount={lpTokenAmount} />,
       },
     ],
     [mintAddresss]

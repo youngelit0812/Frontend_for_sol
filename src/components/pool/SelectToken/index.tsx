@@ -17,6 +17,8 @@ const cellStyle: React.CSSProperties = {
 type SelectTokenProps = {
   mintAddrList: string[];
   setMintAddrList: (arg: string[]) => void;
+  addMintAddrList: (arg: string) => void;
+  removeMintAddrList: (arg: number) => void;
   tokenAmountList: number[];
   setTokenAmountList: (arg: number[]) => void;
   tokenWeightList: number[];
@@ -26,6 +28,8 @@ type SelectTokenProps = {
 export const SelectToken: React.FC<SelectTokenProps> = ({
   mintAddrList,
   setMintAddrList,
+  addMintAddrList,
+  removeMintAddrList,
   tokenAmountList,
   setTokenAmountList,
   tokenWeightList,
@@ -36,10 +40,8 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
   const [activeTokenIndex, setActiveTokenIndex] = useState<number>(0);
   const [isShow, setIsShow] = useState(false);
 
-  const handleAddToken = () => {    
-    const pushedMintAddrList = mintAddrList;
-    pushedMintAddrList.push("");
-    setMintAddrList(pushedMintAddrList);
+  const handleAddToken = () => {
+    addMintAddrList("");
   };
 
   const handleAmountInput = (event: any, index: number) => {
@@ -47,9 +49,13 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
     setTokenAmountList(tokenAmountList);
   };
 
+  const handleWeightInput = (event: any, index: number) => {
+    tokenWeightList[index] = event?.target?.value;
+    setTokenWeightList(tokenWeightList);
+  };
+
   const handleRemoveToken = (index: number) => {
-    mintAddrList.splice(index);
-    setMintAddrList(mintAddrList);
+    removeMintAddrList(index);
   };
 
   const onCloseModal = () => {
@@ -83,21 +89,28 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
             </Button>
           </div>
         </Col>
-        <Col className="gutter-row" span={12}>
+        <Col className="gutter-row" span={6}>
+          <div style={cellStyle}>
+            {index == 0 && (
+              <Input
+                placeholder="Amount"
+                onChange={(event) => {
+                  handleAmountInput(event, index);
+                }}
+              />
+            )}
+          </div>
+        </Col>
+        <Col className="gutter-row" span={6}>
           <div style={cellStyle}>
             <Input
-              placeholder="Amount"
+              placeholder="Weight"
               onChange={(event) => {
-                handleAmountInput(event, index);
+                handleWeightInput(event, index);
               }}
             />
           </div>
         </Col>
-        {/* <Col className="gutter-row" span={6}>
-          <div style={cellStyle}>            
-            <Input placeholder="Weight" />
-          </div>
-        </Col> */}
         <Col className="gutter-row" span={4}>
           <div style={cellStyle}>
             <Popover content="Remove">
@@ -122,20 +135,20 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
             </ColoredText>
           </div>
         </Col>
-        <Col className="gutter-row" span={16}>
+        <Col className="gutter-row" span={8}>
           <div style={cellStyle}>
             <ColoredText fonttype="semiMidTiny" font_name="fantasy">
               Amount
             </ColoredText>
           </div>
         </Col>
-        {/* <Col className="gutter-row" span={10}>
+        <Col className="gutter-row" span={8}>
           <div style={cellStyle}>
             <ColoredText fonttype="semiMidTiny" font_name="fantasy">
               Weight
             </ColoredText>
           </div>
-        </Col> */}
+        </Col>
         {mintAddrList.map(renderRow)}
       </Row>
       <Popover content="New Token">

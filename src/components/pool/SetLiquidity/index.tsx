@@ -1,8 +1,8 @@
-import React, { useContext, useState } from "react";
-import { Input } from "antd";
+import React from "react";
+import { Col, Input, Row } from "antd";
 
 import ColoredText from "components/typography/ColoredText";
-import { LPTokenAmountContainer, LPTokenSetContainer } from "./styles";
+import { LPTokenSetContainer } from "./styles";
 
 type SetLiquidityProps = {
   lpAmount: number;
@@ -35,15 +35,19 @@ export const SetLiquidity: React.FC<SetLiquidityProps> = ({ lpAmount, setLpAmoun
 
   return (
     <LPTokenSetContainer>
-      <LPTokenAmountContainer>
-        <ColoredText>LP Token Amount</ColoredText>
+      <Row style={{ width: "100%" }}>
+        <Col className="gutter-row" span={8}>
+          <ColoredText>LP Token Amount</ColoredText>
+        </Col>
+        <Col className="gutter-row" span={16}>
         <Input
           placeholder="Amount"
           onChange={handleChange}
           onBlur={handleBlur}
           maxLength={10}
-        ></Input>
-      </LPTokenAmountContainer>
+        />
+        </Col>
+      </Row>
     </LPTokenSetContainer>
   );
 };
