@@ -9,9 +9,11 @@ export const TokensContainer = styled.div`
 `;
 
 export const TokenLabelContainer = styled.div`
+  align-items: flex-start;
   display: flex;
   flex-direction: column;  
-  margin-left: 1vw;
+  justify-content: flex-start;
+  margin-left: 1vw;  
 `;
 
 export const TokenSelectModalWrapper = styled.div<{ $isshow: boolean }>`

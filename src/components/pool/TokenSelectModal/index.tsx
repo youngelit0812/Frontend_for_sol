@@ -101,6 +101,7 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
     console.log("logo uri: ", logoURI);
     mintAddrList[tokenIndex] = address;
     onSelectToken(mintAddrList);
+    onClose();
   };
 
   return (
@@ -130,7 +131,7 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
               onClick={() =>
                 onSelectTokenHandler(address, logoURI ? logoURI : "")
               }
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center", marginBottom: '1vh' }}
             >
               <Avatar src={logoURI} size={40} />
               <TokenLabelContainer>
