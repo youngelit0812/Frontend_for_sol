@@ -108,13 +108,15 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
           onSearch={onSearch}
           style={{ width: "40vw" }}
         />
-        <Pagination
-          current={currentPage}
-          onChange={handlePageChange}
-          total={baseTokenListToDisplay.size}
-          pageSize={DISPLAY_TOKEN_CNT_PER_PAGE}
-          showSizeChanger={false}
-        />
+        <div style={{width: "100%", marginTop: '1vh'}}>
+          <Pagination
+            current={currentPage}
+            onChange={handlePageChange}
+            total={baseTokenListToDisplay.size}
+            pageSize={DISPLAY_TOKEN_CNT_PER_PAGE}
+            showSizeChanger={false}
+          />
+        </div>
         <TokensContainer>
           {displayTokenList.map(
             ([address, { name, symbol, logoURI }]) => (
