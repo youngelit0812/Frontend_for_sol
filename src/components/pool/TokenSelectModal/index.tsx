@@ -11,6 +11,7 @@ import {
   TokenSelectModalOverlay,
   CloseBtn,
 } from "./styles";
+import ColoredText from "components/typography/ColoredText";
 
 const { Search } = Input;
 
@@ -127,10 +128,11 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
                 }
                 style={{ display: "flex", alignItems: "center" }}
               >
-                <Avatar src={logoURI} size={30} />
-                <div style={{ marginLeft: "10px" }}>
-                  <h4>{symbol}</h4>
-                  <p>{name}</p>
+                <Avatar src={logoURI} size={40} />
+                <div style={{ marginLeft: "1vw" }}>
+                  <ColoredText fonttype="semiMidTiny" font_name="fantasy">
+                  {symbol}</ColoredText>
+                  <ColoredText fonttype="semiMidTiny" font_name="fantasy">{name}</ColoredText>
                 </div>
               </div>
             )

@@ -1,7 +1,7 @@
 import { styled } from "styled-components";
 
 export const TokensContainer = styled.div`
-  width: 100%;
+  width: 90%;
   height: 70%;
   display: flex;
   flex-direction: column;  
