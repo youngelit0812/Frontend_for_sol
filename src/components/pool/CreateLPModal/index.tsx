@@ -39,6 +39,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   };
 
   const setIndexedTokenAmount = (indexToUpdate: number, newValue: number) => {
+    console.log(`set token amount: index:${indexToUpdate}, value:${newValue}`);
     setTokenAmounts(
       tokenAmounts.map((value, index) =>
         index === indexToUpdate ? newValue : value
@@ -47,6 +48,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   };
 
   const setIndexedTokenWeight = (indexToUpdate: number, newValue: number) => {
+    console.log(`set token weight: index:${indexToUpdate}, value:${newValue}`);
     setTokenWeights(
       tokenWeights.map((value, index) =>
         index === indexToUpdate ? newValue : value
@@ -97,8 +99,10 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const next = async () => {
     switch (current) {
       case 0:
+        console.log(`next-0`);
         let totalWeight = 0;
         for (let tokenWeight of tokenWeights) {
+          console.log(`next-0-sum weight: weight:${tokenWeight}`);
           totalWeight += tokenWeight;
         }
 

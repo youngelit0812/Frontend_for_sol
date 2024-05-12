@@ -128,27 +128,29 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
   return (
     <TokenWrapper>
       <Row gutter={10} style={{ width: "100%" }}>
-        <Col className="gutter-row" span={8}>
+        <Col className="gutter-row" span={3}></Col>
+        <Col className="gutter-row" span={5}>
           <div style={cellStyle}>
             <ColoredText fonttype="semiMidTiny" font_name="fantasy">
               Token
             </ColoredText>
           </div>
         </Col>
-        <Col className="gutter-row" span={8}>
+        <Col className="gutter-row" span={6}>
           <div style={cellStyle}>
             <ColoredText fonttype="semiMidTiny" font_name="fantasy">
               Amount
             </ColoredText>
           </div>
         </Col>
-        <Col className="gutter-row" span={8}>
+        <Col className="gutter-row" span={6}>
           <div style={cellStyle}>
             <ColoredText fonttype="semiMidTiny" font_name="fantasy">
               Weight
             </ColoredText>
           </div>
         </Col>
+        <Col className="gutter-row" span={4}></Col>
         {mintAddrList.map(renderRow)}
       </Row>
       <Popover content="New Token">
