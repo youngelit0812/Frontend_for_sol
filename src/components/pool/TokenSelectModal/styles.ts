@@ -2,12 +2,14 @@ import { styled } from "styled-components";
 
 export const TokensContainer = styled.div`
   width: 100%;
+  height: 70%;
   display: flex;
   flex-direction: column;  
 `;
 
 export const TokenSelectModalWrapper = styled.div<{ $isshow: boolean }>`
   width: 45vw;
+  height: 70vh;
   position: fixed;
   background-clip: padding-box, border-box;
   background-color: #ffffff;

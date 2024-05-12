@@ -62,7 +62,8 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
     }
   };
 
-  const onSelectTokenHandler = (address: string) => {
+  const onSelectTokenHandler = (address: string, logoURI: string) => {
+    console.log("logo uri: ", logoURI);
     mintAddrList[tokenIndex] = address;
     onSelectToken(mintAddrList);
   }
@@ -82,9 +83,9 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
           {Array.from(displayTokenList).map(([address, { name, symbol, logoURI }]) => (
             <div
               key={address}
-              onClick={() => onSelectTokenHandler(address)}
+              onClick={() => onSelectTokenHandler(address, logoURI?logoURI:"")}
               style={{ display: "flex", alignItems: "center" }}
-            >
+            >              
               <Avatar src={logoURI} size={30} />
               <div style={{ marginLeft: "10px" }}>
                 <h4>{symbol}</h4>
