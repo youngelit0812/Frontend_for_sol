@@ -20,9 +20,9 @@ type SelectTokenProps = {
   addMintAddrList: (arg: string) => void;
   removeMintAddrList: (arg: number) => void;
   tokenAmountList: number[];
-  setTokenAmountList: (arg: number[]) => void;
+  setTokenAmountList: (index: number, value: number) => void;
   tokenWeightList: number[];
-  setTokenWeightList: (arg: number[]) => void;
+  setTokenWeightList: (index: number, value: number) => void;
 };
 
 export const SelectToken: React.FC<SelectTokenProps> = ({
@@ -45,13 +45,11 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
   };
 
   const handleAmountInput = (event: any, index: number) => {
-    tokenAmountList[index] = event?.target?.value;
-    setTokenAmountList(tokenAmountList);
+    setTokenAmountList(index, event?.target?.value);
   };
 
   const handleWeightInput = (event: any, index: number) => {
-    tokenWeightList[index] = event?.target?.value;
-    setTokenWeightList(tokenWeightList);
+    setTokenWeightList(index, event?.target?.value);
   };
 
   const handleRemoveToken = (index: number) => {
@@ -94,6 +92,7 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
             {index == 0 && (
               <Input
                 placeholder="Amount"
+                value={0}
                 onChange={(event) => {
                   handleAmountInput(event, index);
                 }}
@@ -105,6 +104,7 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
           <div style={cellStyle}>
             <Input
               placeholder="Weight"
+              value={0}
               onChange={(event) => {
                 handleWeightInput(event, index);
               }}

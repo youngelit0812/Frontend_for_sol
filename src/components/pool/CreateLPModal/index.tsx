@@ -25,18 +25,34 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const { publicKey } = useWallet();
   const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
-  const [mintAddresss, setMintAddresss] = useState<string[]>(["",""]);
+  const [mintAddresss, setMintAddresss] = useState<string[]>(["", ""]);
   const [tokenAmounts, setTokenAmounts] = useState<number[]>([]);
   const [tokenWeights, setTokenWeights] = useState<number[]>([]);
   const [lpTokenAmount, setLpTokenAmount] = useState<number>(0);
 
   const addMintAddress = (newMintAddress: string) => {
     setMintAddresss([...mintAddresss, newMintAddress]);
-  }
+  };
 
   const removeMintAddress = (indexToRemove: number) => {
     setMintAddresss(mintAddresss.filter((_, index) => index !== indexToRemove));
-  }
+  };
+
+  const setIndexedTokenAmount = (indexToUpdate: number, newValue: number) => {
+    setTokenAmounts(
+      tokenAmounts.map((value, index) =>
+        index === indexToUpdate ? newValue : value
+      )
+    );
+  };
+
+  const setIndexedTokenWeight = (indexToUpdate: number, newValue: number) => {
+    setTokenWeights(
+      tokenWeights.map((value, index) =>
+        index === indexToUpdate ? newValue : value
+      )
+    );
+  };
 
   const createLPSteps = useMemo(
     () => [
@@ -49,19 +65,30 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
             addMintAddrList={addMintAddress}
             removeMintAddrList={removeMintAddress}
             tokenAmountList={tokenAmounts}
-            setTokenAmountList={setTokenAmounts}
+            setTokenAmountList={setIndexedTokenAmount}
             tokenWeightList={tokenWeights}
-            setTokenWeightList={setTokenWeights}
+            setTokenWeightList={setIndexedTokenWeight}
           />
         ),
       },
       {
         title: "Set liquidity",
-        content: <SetLiquidity lpAmount={lpTokenAmount} setLpAmount={setLpTokenAmount} />,
+        content: (
+          <SetLiquidity
+            lpAmount={lpTokenAmount}
+            setLpAmount={setLpTokenAmount}
+          />
+        ),
       },
       {
         title: "Confirm",
-        content: <ConfirmCreateLP mintAddrList={mintAddresss} tokenAmountList={tokenAmounts} lpTAmount={lpTokenAmount} />,
+        content: (
+          <ConfirmCreateLP
+            mintAddrList={mintAddresss}
+            tokenAmountList={tokenAmounts}
+            lpTAmount={lpTokenAmount}
+          />
+        ),
       },
     ],
     [mintAddresss]
@@ -72,13 +99,16 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
       case 0:
         let totalWeight = 0;
         for (let tokenWeight of tokenWeights) {
-          totalWeight += tokenWeight;          
+          totalWeight += tokenWeight;
         }
 
         if (totalWeight != 100) {
-          toast(`Please, input correct token weight. Sum of weights should be 100`, {
-            theme: "dark",
-          });
+          toast(
+            `Please, input correct token weight. Sum of weights should be 100`,
+            {
+              theme: "dark",
+            }
+          );
 
           return;
         }
@@ -103,7 +133,6 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           //   toast(`Not sufficient balance in your wallet. Please, charge!`, {
           //     theme: "dark",
           //   });
-
           //   return;
           // }
         } else {
