@@ -1,13 +1,15 @@
 import {
-  //     Account,
+  Account,
   Connection,
   PublicKey,
-  //     SystemProgram,
-  //     TransactionInstruction,
+  SystemProgram,
+  TransactionInstruction,
+  Transaction,
+  Keypair,
 } from "@solana/web3.js";
 //   import { sendTransaction, useConnection } from "./connection";
 import { useEffect, useState } from "react";
-//   import { Token, MintLayout, AccountLayout } from "@solana/spl-token";
+import { Token, MintLayout, AccountLayout } from "@solana/spl-token";
 //   import { notify } from "./notifications";
 //   import {
 //     cache,
@@ -22,19 +24,19 @@ import {
   //     WRAPPED_SOL_MINT,
 } from "./ids";
 import {
-  //     LiquidityComponent,
+  LiquidityComponent,
   PoolInfo,
   //     TokenAccount,
-  //     createInitSwapInstruction,
+  createInitPoolInstruction,
   TokenSwapLayout,
   //     depositInstruction,
   //     withdrawInstruction,
   //     TokenSwapLayoutLegacyV0,
   //     swapInstruction,
-  //     PoolConfig,
-} from "./../models";
+      PoolConfig,
+} from "models";
 
-export const LIQUIDITY_TOKEN_PRECISION = 6;
+export const LIQUIDITY_TOKEN_PRECISION = 8;
 
 //   export const removeLiquidity = async (
 //     connection: Connection,
@@ -267,30 +269,28 @@ export const LIQUIDITY_TOKEN_PRECISION = 6;
 //     });
 //   };
 
-//   export const addLiquidity = async (
-//     connection: Connection,
-//     wallet: any,
-//     components: LiquidityComponent[],
-//     slippage: number,
-//     pool?: PoolInfo,
-//     options?: PoolConfig
-//   ) => {
-//     if (!pool) {
-//       if (!options) {
-//         throw new Error("Options are required to create new pool.");
-//       }
-
-//       await _addLiquidityNewPool(wallet, connection, components, options);
-//     } else {
-//       await _addLiquidityExistingPool(
-//         pool,
-//         components,
-//         connection,
-//         wallet,
-//         slippage
-//       );
-//     }
-//   };
+  export const addLiquidity = async (
+    connection: Connection,
+    components: LiquidityComponent[],
+    slippage: number,
+    pool?: PoolInfo,
+    options?: PoolConfig
+  ) => {
+    if (!pool) {
+      if (!options) {
+        throw new Error("Options are required to create new pool.");
+      }
+      
+      // await _addLiquidityNewPool(connection, components);
+    } else {
+      // await _addLiquidityExistingPool(
+      //   pool,
+      //   components,
+      //   connection,
+      //   slippage
+      // );
+    }
+  };
 
 //   const getHoldings = (connection: Connection, accounts: string[]) => {
 //     return accounts.map((acc) =>
@@ -460,13 +460,13 @@ export const usePools = (connection: Connection) => {
 //       .flat();
 //   };
 
-//   async function _addLiquidityExistingPool(
-//     pool: PoolInfo,
-//     components: LiquidityComponent[],
-//     connection: Connection,
-//     wallet: any,
-//     SLIPPAGE: number
-//   ) {
+  async function _addLiquidityExistingPool(
+    pool: PoolInfo,
+    components: LiquidityComponent[],
+    connection: Connection,
+    wallet: any,
+    SLIPPAGE: number
+  ) {
 //     notify({
 //       message: "Adding Liquidity...",
 //       description: "Please review transactions to approve.",
@@ -606,7 +606,7 @@ export const usePools = (connection: Connection) => {
 //       type: "success",
 //       description: `Transaction - ${tx}`,
 //     });
-//   }
+  }
 
 //   function findOrCreateAccountByMint(
 //     payer: PublicKey,
@@ -710,213 +710,102 @@ export const usePools = (connection: Connection) => {
 //     return dependentTokenAmount / depPrecision;
 //   }
 
-//   // TODO: add ui to customize curve type
-//   async function _addLiquidityNewPool(
-//     wallet: any,
-//     connection: Connection,
-//     components: LiquidityComponent[],
-//     options: PoolConfig
-//   ) {
-//     notify({
-//       message: "Creating new pool...",
-//       description: "Please review transactions to approve.",
-//       type: "warn",
-//     });
+// TODO: add ui to customize curve type
 
-//     if (components.some((c) => !c.account)) {
-//       notify({
-//         message: "You need to have balance for all legs in the basket...",
-//         description: "Please review inputs.",
-//         type: "error",
-//       });
-//       return;
-//     }
+async function createTreasurerPubkey(poolAcc: PublicKey, programId: PublicKey): Promise<PublicKey> {
+  const seed = Buffer.from(poolAcc.toBytes()).toString();
+  const expectedAcc = await PublicKey.createWithSeed(
+     poolAcc,   // base
+     seed,      // seed
+     programId, // derived from this program_id
+  );
+  return expectedAcc;  // this is Treasurer Account's PDA
+}
 
-//     let instructions: TransactionInstruction[] = [];
-//     let cleanupInstructions: TransactionInstruction[] = [];
+async function _addLiquidityNewPool(  
+  walletPubKey: PublicKey,
+  connection: Connection,
+  components: LiquidityComponent[]
+) {
+  if (components.some((c) => !c.account)) {
+    console.log("_addLiquidityNewPool - account is missing");
+    return;
+  }
 
-//     const liquidityTokenAccount = new Account();
-//     // Create account for pool liquidity token
-//     instructions.push(
-//       SystemProgram.createAccount({
-//         fromPubkey: wallet.publicKey,
-//         newAccountPubkey: liquidityTokenAccount.publicKey,
-//         lamports: await connection.getMinimumBalanceForRentExemption(
-//           MintLayout.span
-//         ),
-//         space: MintLayout.span,
-//         programId: programIds().token,
-//       })
-//     );
+  let transactions = new Transaction();
+  let instructions: TransactionInstruction[] = [];
+  let cleanupInstructions: TransactionInstruction[] = [];
 
-//     const tokenSwapAccount = new Account();
+  const liquidityTokenAccount = new Account();
+  // Create account for pool liquidity token
+  transactions.add(
+    SystemProgram.createAccount({
+      fromPubkey: walletPubKey,
+      newAccountPubkey: liquidityTokenAccount.publicKey,
+      lamports: await connection.getMinimumBalanceForRentExemption(
+        MintLayout.span
+      ),
+      space: MintLayout.span,
+      programId: programIds().token,
+    })
+  );
 
-//     const [authority, nonce] = await PublicKey.findProgramAddress(
-//       [tokenSwapAccount.publicKey.toBuffer()],
-//       programIds().swap
-//     );
+  const poolAccount = new Account();
 
-//     // create mint for pool liquidity token
-//     instructions.push(
-//       Token.createInitMintInstruction(
-//         programIds().token,
-//         liquidityTokenAccount.publicKey,
-//         LIQUIDITY_TOKEN_PRECISION,
-//         // pass control of liquidity mint to swap program
-//         authority,
-//         // swap program can freeze liquidity token mint
-//         null
-//       )
-//     );
+  const [authority_PDA_poolAccount, nonce] = await PublicKey.findProgramAddress(
+    [poolAccount.publicKey.toBuffer()],
+    programIds().swap
+  );
 
-//     // Create holding accounts for
-//     const accountRentExempt = await connection.getMinimumBalanceForRentExemption(
-//       AccountLayout.span
-//     );
-//     const holdingAccounts: Account[] = [];
-//     let signers: Account[] = [];
+  // create mint for pool liquidity token
+  transactions.add(
+    Token.createInitMintInstruction(
+      programIds().token,
+      liquidityTokenAccount.publicKey,
+      LIQUIDITY_TOKEN_PRECISION,
+      // pass control of liquidity mint to swap program
+      authority_PDA_poolAccount,
+      // swap program can freeze liquidity token mint
+      null
+    )
+  );
 
-//     components.forEach((leg) => {
-//       if (!leg.account) {
-//         return;
-//       }
+  let treasurerAccount = createTreasurerPubkey(authority_PDA_poolAccount, programIds().swap);
 
-//       const mintPublicKey = leg.account.info.mint;
-//       // component account to store tokens I of N in liquidity poll
-//       holdingAccounts.push(
-//         createSplAccount(
-//           instructions,
-//           wallet.publicKey,
-//           accountRentExempt,
-//           mintPublicKey,
-//           authority,
-//           AccountLayout.span
-//         )
-//       );
-//     });
+  const accountRentExempt = await connection.getMinimumBalanceForRentExemption(
+    AccountLayout.span
+  );
+  // Create holding accounts for
+  const holdingAccounts: Account[] = [];
+  let signers: Account[] = [];
 
-//     // creating depositor pool account
-//     const depositorAccount = createSplAccount(
-//       instructions,
-//       wallet.publicKey,
-//       accountRentExempt,
-//       liquidityTokenAccount.publicKey,
-//       wallet.publicKey,
-//       AccountLayout.span
-//     );
+  components.forEach((leg) => {
+    if (!leg.account) {
+      return;
+    }
 
-//     // creating fee pool account its set from env variable or to creater of the pool
-//     // creater of the pool is not allowed in some versions of token-swap program
-//     const feeAccount = createSplAccount(
-//       instructions,
-//       wallet.publicKey,
-//       accountRentExempt,
-//       liquidityTokenAccount.publicKey,
-//       SWAP_PROGRAM_OWNER_FEE_ADDRESS || wallet.publicKey,
-//       AccountLayout.span
-//     );
+    // component account to store tokens I of N in liquidity pool
+    holdingAccounts.push(
+      createSplAccountWithoutInit(
+        transactions,
+        walletPubKey,
+        accountRentExempt,
+        AccountLayout.span
+      )
+    );
+  });
 
-//     // create all accounts in one transaction
-//     let tx = await sendTransaction(connection, wallet, instructions, [
-//       liquidityTokenAccount,
-//       depositorAccount,
-//       feeAccount,
-//       ...holdingAccounts,
-//       ...signers,
-//     ]);
+  transactions.feePayer = walletPubKey;
 
-//     notify({
-//       message: "Accounts created",
-//       description: `Transaction ${tx}`,
-//       type: "success",
-//     });
 
-//     notify({
-//       message: "Adding Liquidity...",
-//       description: "Please review transactions to approve.",
-//       type: "warn",
-//     });
+  // instructions.push(
+  //   createInitPoolInstruction(
+  //     walletPubKey,
+  //     walletPubKey,
 
-//     signers = [];
-//     instructions = [];
-//     cleanupInstructions = [];
-
-//     instructions.push(
-//       SystemProgram.createAccount({
-//         fromPubkey: wallet.publicKey,
-//         newAccountPubkey: tokenSwapAccount.publicKey,
-//         lamports: await connection.getMinimumBalanceForRentExemption(
-//           TokenSwapLayout.span
-//         ),
-//         space: TokenSwapLayout.span,
-//         programId: programIds().swap,
-//       })
-//     );
-
-//     components.forEach((leg, i) => {
-//       if (!leg.account) {
-//         return;
-//       }
-
-//       // create temporary account for wrapped sol to perform transfer
-//       const from = getWrappedAccount(
-//         instructions,
-//         cleanupInstructions,
-//         leg.account,
-//         wallet.publicKey,
-//         leg.amount + accountRentExempt,
-//         signers
-//       );
-
-//       instructions.push(
-//         Token.createTransferInstruction(
-//           programIds().token,
-//           from,
-//           holdingAccounts[i].publicKey,
-//           wallet.publicKey,
-//           [],
-//           leg.amount
-//         )
-//       );
-//     });
-
-//     instructions.push(
-//       createInitSwapInstruction(
-//         tokenSwapAccount,
-//         authority,
-//         holdingAccounts[0].publicKey,
-//         holdingAccounts[1].publicKey,
-//         liquidityTokenAccount.publicKey,
-//         feeAccount.publicKey,
-//         depositorAccount.publicKey,
-//         programIds().token,
-//         programIds().swap,
-//         nonce,
-//         options.curveType,
-//         options.tradeFeeNumerator,
-//         options.tradeFeeDenominator,
-//         options.ownerTradeFeeNumerator,
-//         options.ownerTradeFeeDenominator,
-//         options.ownerWithdrawFeeNumerator,
-//         options.ownerWithdrawFeeDenominator
-//       )
-//     );
-
-//     // All instructions didn't fit in single transaction
-//     // initialize and provide inital liquidity to swap in 2nd (this prevents loss of funds)
-//     tx = await sendTransaction(
-//       connection,
-//       wallet,
-//       instructions.concat(cleanupInstructions),
-//       [tokenSwapAccount, ...signers]
-//     );
-
-//     notify({
-//       message: "Pool Funded. Happy trading.",
-//       type: "success",
-//       description: `Transaction - ${tx}`,
-//     });
-//   }
+  //   )
+  // );
+}
 
 //   function getWrappedAccount(
 //     instructions: TransactionInstruction[],
@@ -965,33 +854,22 @@ export const usePools = (connection: Connection) => {
 //     return account.publicKey;
 //   }
 
-//   function createSplAccount(
-//     instructions: TransactionInstruction[],
-//     payer: PublicKey,
-//     accountRentExempt: number,
-//     mint: PublicKey,
-//     owner: PublicKey,
-//     space: number
-//   ) {
-//     const account = new Account();
-//     instructions.push(
-//       SystemProgram.createAccount({
-//         fromPubkey: payer,
-//         newAccountPubkey: account.publicKey,
-//         lamports: accountRentExempt,
-//         space,
-//         programId: programIds().token,
-//       })
-//     );
+function createSplAccountWithoutInit(
+  transactions: Transaction,
+  payer: PublicKey,
+  accountRentExempt: number,
+  space: number
+) {
+  const account = new Account();
+  transactions.add(
+    SystemProgram.createAccount({
+      fromPubkey: payer,
+      newAccountPubkey: account.publicKey,
+      lamports: accountRentExempt,
+      space,
+      programId: programIds().token,
+    })
+  );
 
-//     instructions.push(
-//       Token.createInitAccountInstruction(
-//         programIds().token,
-//         mint,
-//         account.publicKey,
-//         owner
-//       )
-//     );
-
-//     return account;
-//   }
+  return account;
+}

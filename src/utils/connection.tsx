@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
 import {
+  Account,
   clusterApiUrl,
+  Transaction,
 } from "@solana/web3.js";
 
 import { useLocalStorageState } from "./utils";
@@ -81,4 +83,48 @@ export function useConnectionConfig() {
 export function getEndpointName(endPoint: string) {
   const endPointObject = ENDPOINTS.find((ep) => ep.endpoint === endPoint);
   return endPointObject ? endPointObject.name : "";
+};
+
+export const sendTransaction = async (
+  connection: any,
+  wallet: any,
+  transaction: Transaction,
+  signers: Account[],
+  awaitConfirmation = true
+) => {
+  transaction.recentBlockhash = (
+    await connection.getRecentBlockhash("max")
+  ).blockhash;
+  transaction.setSigners(
+    // fee payied by the wallet owner
+    wallet.publicKey,
+    ...signers.map((s) => s.publicKey)
+  );
+  if (signers.length > 0) {
+    transaction.partialSign(...signers);
+  }
+  transaction = await wallet.signTransaction(transaction);
+  const rawTransaction = transaction.serialize();
+  let options = {
+    skipPreflight: true,
+    commitment: "singleGossip",
+  };
+
+  const txid = await connection.sendRawTransaction(rawTransaction, options);
+
+  if (awaitConfirmation) {
+    const status = (
+      await connection.confirmTransaction(txid, options && options.commitment)
+    ).value;
+
+    if (status.err) {
+      console.log("sendTransaction failed: ");
+
+      throw new Error(
+        `Raw transaction ${txid} failed (${JSON.stringify(status)})`
+      );
+    }
+  }
+
+  return txid;
 };

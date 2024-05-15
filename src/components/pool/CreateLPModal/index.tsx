@@ -7,6 +7,7 @@ import { SelectToken } from "../SelectToken";
 import { SetLiquidity } from "../SetLiquidity";
 import { ConfirmCreateLP } from "../ConfirmCreateLP";
 import { checkTokenBalances } from "utils/walletUtil";
+import { addLiquidity } from "utils/pools";
 import {
   CreateLPModalWrapper,
   CreateLPModalOverlay,
@@ -22,7 +23,7 @@ type CreateLPProps = {
 
 export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const { connection } = useConnection();
-  const { publicKey } = useWallet();
+  const { publicKey, signTransaction } = useWallet();
   const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
   const [mintAddresss, setMintAddresss] = useState<string[]>(["", ""]);
@@ -143,6 +144,8 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           // });
           // return;
         }
+        
+        addLiquidity();
 
         break;
       case 1:
