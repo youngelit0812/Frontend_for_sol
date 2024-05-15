@@ -10,6 +10,7 @@ import {
 //   import { sendTransaction, useConnection } from "./connection";
 import { useEffect, useState } from "react";
 import { Token, MintLayout, AccountLayout } from "@solana/spl-token";
+import { SignerWalletAdapterProps } from "@solana/wallet-adapter-base";
 //   import { notify } from "./notifications";
 //   import {
 //     cache,
@@ -270,6 +271,8 @@ export const LIQUIDITY_TOKEN_PRECISION = 8;
 //   };
 
   export const addLiquidity = async (
+    walletPubKey: PublicKey,
+    signTransaction: SignerWalletAdapterProps['signTransaction'] | undefined,
     connection: Connection,
     components: LiquidityComponent[],
     slippage: number,
@@ -281,7 +284,7 @@ export const LIQUIDITY_TOKEN_PRECISION = 8;
         throw new Error("Options are required to create new pool.");
       }
       
-      // await _addLiquidityNewPool(connection, components);
+      await _addLiquidityNewPool(walletPubKey, signTransaction, connection, components);
     } else {
       // await _addLiquidityExistingPool(
       //   pool,
@@ -724,6 +727,7 @@ async function createTreasurerPubkey(poolAcc: PublicKey, programId: PublicKey): 
 
 async function _addLiquidityNewPool(  
   walletPubKey: PublicKey,
+  signTransaction: SignerWalletAdapterProps['signTransaction'] | undefined,
   connection: Connection,
   components: LiquidityComponent[]
 ) {

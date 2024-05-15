@@ -1,13 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { Button, message, Steps, theme } from "antd";
+import { PublicKey } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { Token } from "@solana/spl-token";
 
 import { SelectToken } from "../SelectToken";
 import { SetLiquidity } from "../SetLiquidity";
 import { ConfirmCreateLP } from "../ConfirmCreateLP";
-import { checkTokenBalances } from "utils/walletUtil";
+import { findAssociatedTokenAddress } from "utils/accounts";
 import { addLiquidity } from "utils/pools";
+
 import {
   CreateLPModalWrapper,
   CreateLPModalOverlay,
@@ -15,6 +18,7 @@ import {
   StepContainer,
   TitleContainer,
 } from "./styles";
+import { LiquidityComponent } from "models";
 
 type CreateLPProps = {
   isShow: boolean;
@@ -144,8 +148,37 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           // });
           // return;
         }
-        
-        addLiquidity();
+
+        const mintAddrA = "";
+        const mintAddrB = "";
+        const mintAddrS = "";
+
+        let ataA, ataB, ataS;
+        if (publicKey) {
+          ataA = findAssociatedTokenAddress(publicKey, new PublicKey(mintAddrA));
+          ataB = findAssociatedTokenAddress(publicKey, new PublicKey(mintAddrB));
+          ataS = findAssociatedTokenAddress(publicKey, new PublicKey(mintAddrS));       
+          
+          const components: LiquidityComponent[] = [
+            {
+              account: ataA,
+              mintAddress: mintAddrA,
+              amount: 10,
+            },
+            {
+              account: ataB,
+              mintAddress: mintAddrB,
+              amount: 10,
+            },
+            {
+              account: ataS,
+              mintAddress: mintAddrS,
+              amount: 10,
+            },
+          ];
+          
+          addLiquidity(publicKey, signTransaction, connection, components, 0);
+        }
 
         break;
       case 1:

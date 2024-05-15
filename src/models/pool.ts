@@ -17,7 +17,7 @@ export interface PoolInfo {
 
 export interface LiquidityComponent {
   amount: number;
-  account?: TokenAccount;
+  account?: PublicKey;
   mintAddress: string;
 }
 
