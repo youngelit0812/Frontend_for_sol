@@ -8,6 +8,7 @@ import ColoredText from "components/typography/ColoredText";
 
 import { TokenWrapper, CaptionContainer } from "./styles";
 import { TokenSelectModal } from "../TokenSelectModal";
+import { MAX_TOKEN_CNT_PROVIDE } from "models/tokenSwap";
 
 const cellStyle: React.CSSProperties = {
   padding: "8px 0",
@@ -20,9 +21,13 @@ type SelectTokenProps = {
   addMintAddrList: (arg: string) => void;
   removeMintAddrList: (arg: number) => void;
   tokenAmountList: number[];
-  setTokenAmountList: (index: number, value: number) => void;
+  setTokenAmountList: (arg: number[]) => void;
+  addTAmount: (arg: number) => void;
+  removeTAmount: (arg: number) => void;
   tokenWeightList: number[];
-  setTokenWeightList: (index: number, value: number) => void;
+  setTokenWeightList: (arg: number[]) => void;
+  addTWeight: (arg: number) => void;
+  removeTWeight: (arg: number) => void;
 };
 
 export const SelectToken: React.FC<SelectTokenProps> = ({
@@ -34,6 +39,10 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
   setTokenAmountList,
   tokenWeightList,
   setTokenWeightList,
+  addTAmount,
+  removeTAmount,
+  addTWeight,
+  removeTWeight,
 }) => {
   const { tokenList } = useContext(SPLTokenListContext);
 
@@ -42,18 +51,26 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
 
   const handleAddToken = () => {
     addMintAddrList("");
+    addTAmount(0);
+    addTWeight(0);
   };
 
   const handleAmountInput = (event: any, index: number) => {
-    setTokenAmountList(index, event?.target?.value);
+    let newTokenAmountList = [...tokenAmountList];
+    newTokenAmountList[index] = event?.target?.value;
+    setTokenAmountList(newTokenAmountList);
   };
 
   const handleWeightInput = (event: any, index: number) => {
-    setTokenWeightList(index, event?.target?.value);
+    let newTokenWeightList = [...tokenWeightList];
+    newTokenWeightList[index] = event?.target?.value;
+    setTokenWeightList(newTokenWeightList);
   };
 
   const handleRemoveToken = (index: number) => {
     removeMintAddrList(index);
+    removeTAmount(index);
+    removeTWeight(index);
   };
 
   const onCloseModal = () => {
@@ -61,7 +78,6 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
   };
 
   const renderRow = (mintAddress: string, index: number) => {
-    console.log(`${mintAddress} and index:${index}`);
     const tokenInfo = tokenList.get(mintAddress);
     return (
       <Row key={index} style={{ width: "100%" }}>
@@ -115,6 +131,7 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
           <div style={cellStyle}>
             <Popover content="Remove">
               <Button
+                disabled={tokenWeightList.length <= 2}
                 icon={<DeleteOutlined />}
                 onClick={() => handleRemoveToken(index)}
               />
@@ -154,7 +171,7 @@ export const SelectToken: React.FC<SelectTokenProps> = ({
         {mintAddrList.map(renderRow)}
       </Row>
       <Popover content="New Token">
-        <Button icon={<PlusOutlined />} onClick={handleAddToken} />
+        <Button icon={<PlusOutlined />} onClick={handleAddToken} disabled={tokenWeightList.length >= MAX_TOKEN_CNT_PROVIDE}>Select New Token</Button>
       </Popover>
       <TokenSelectModal
         isShow={isShow}

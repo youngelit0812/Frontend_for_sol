@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { Button, message, Steps, theme } from "antd";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -26,85 +26,89 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
   const [mintAddresss, setMintAddresss] = useState<string[]>(["", ""]);
-  const [tokenAmounts, setTokenAmounts] = useState<number[]>([]);
-  const [tokenWeights, setTokenWeights] = useState<number[]>([]);
-  const [lpTokenAmount, setLpTokenAmount] = useState<number>(0);
+  const [tokenAmounts, setTokenAmounts] = useState<number[]>([0, 0]);
+  const [tokenWeights, setTokenWeights] = useState<number[]>([0, 0]);
+  const [lpTokenAmount, setLpTokenAmount] = useState(0);
 
   const addMintAddress = (newMintAddress: string) => {
     setMintAddresss([...mintAddresss, newMintAddress]);
+  };
+
+  const addTAmount = (amount: number) => {
+    setTokenAmounts([...tokenAmounts, amount]);
+  };
+
+  const addTWeight = (weight: number) => {
+    setTokenWeights([...tokenWeights, weight]);
+  };
+
+  const removeTAmount = (indexToRemove: number) => {
+    setTokenAmounts(tokenAmounts.filter((_, index) => index !== indexToRemove));
+  };
+
+  const removeTWeight = (indexToRemove: number) => {
+    setTokenWeights(tokenWeights.filter((_, index) => index !== indexToRemove));
   };
 
   const removeMintAddress = (indexToRemove: number) => {
     setMintAddresss(mintAddresss.filter((_, index) => index !== indexToRemove));
   };
 
-  const setIndexedTokenAmount = (indexToUpdate: number, newValue: number) => {
-    console.log(`set token amount: index:${indexToUpdate}, value:${newValue}`);
-    setTokenAmounts(
-      tokenAmounts.map((value, index) =>
-        index === indexToUpdate ? newValue : value
-      )
-    );
-  };
-
-  const setIndexedTokenWeight = (indexToUpdate: number, newValue: number) => {
-    console.log(`set token weight: index:${indexToUpdate}, value:${newValue}`);
-    setTokenWeights(
-      tokenWeights.map((value, index) =>
-        index === indexToUpdate ? newValue : value
-      )
-    );
-  };
-
-  const createLPSteps = useMemo(
-    () => [
-      {
-        title: "Select token & weights",
-        content: (
-          <SelectToken
-            mintAddrList={mintAddresss}
-            setMintAddrList={setMintAddresss}
-            addMintAddrList={addMintAddress}
-            removeMintAddrList={removeMintAddress}
-            tokenAmountList={tokenAmounts}
-            setTokenAmountList={setIndexedTokenAmount}
-            tokenWeightList={tokenWeights}
-            setTokenWeightList={setIndexedTokenWeight}
-          />
-        ),
-      },
-      {
-        title: "Set liquidity",
-        content: (
-          <SetLiquidity
-            lpAmount={lpTokenAmount}
-            setLpAmount={setLpTokenAmount}
-          />
-        ),
-      },
-      {
-        title: "Confirm",
-        content: (
-          <ConfirmCreateLP
-            mintAddrList={mintAddresss}
-            tokenAmountList={tokenAmounts}
-            lpTAmount={lpTokenAmount}
-          />
-        ),
-      },
-    ],
-    [mintAddresss]
-  );
+  const createLPSteps = [
+    {
+      title: "Select token & weights",
+      content: (
+        <SelectToken
+          mintAddrList={mintAddresss}
+          setMintAddrList={setMintAddresss}
+          addMintAddrList={addMintAddress}
+          removeMintAddrList={removeMintAddress}
+          tokenAmountList={tokenAmounts}
+          setTokenAmountList={setTokenAmounts}
+          addTAmount={addTAmount}
+          removeTAmount={removeTAmount}
+          tokenWeightList={tokenWeights}
+          setTokenWeightList={setTokenWeights}
+          addTWeight={addTWeight}
+          removeTWeight={removeTWeight}
+        />
+      ),
+    },
+    {
+      title: "Set liquidity",
+      content: (
+        <SetLiquidity lpAmount={lpTokenAmount} setLpAmount={setLpTokenAmount} />
+      ),
+    },
+    {
+      title: "Confirm",
+      content: (
+        <ConfirmCreateLP
+          mintAddrList={mintAddresss}
+          tokenAmountList={tokenAmounts}
+          lpTAmount={lpTokenAmount}
+        />
+      ),
+    },
+  ];
 
   const next = async () => {
     switch (current) {
       case 0:
-        console.log(`next-0`);
-        let totalWeight = 0;
-        for (let tokenWeight of tokenWeights) {
-          console.log(`next-0-sum weight: weight:${tokenWeight}`);
-          totalWeight += tokenWeight;
+        if (tokenAmounts[0] <= 0) {
+          toast(`Please, input correct token amount`, {
+            theme: "dark",
+          });
+
+          return;
         }
+
+        let totalWeight = 0;
+        let newTokenAmountList = [...tokenAmounts];
+        tokenWeights.map((tokenWeight, index) => {          
+          newTokenAmountList[index] = newTokenAmountList[0] * tokenWeight / tokenWeights[0];
+          totalWeight += Number(tokenWeight);
+        });        
 
         if (totalWeight != 100) {
           toast(
@@ -117,14 +121,8 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           return;
         }
 
-        if (tokenAmounts[0] <= 0) {
-          toast(`Please, input correct token amount`, {
-            theme: "dark",
-          });
-
-          return;
-        }
-
+        setTokenAmounts(newTokenAmountList);
+        
         if (publicKey) {
           // if (
           //   !(await checkTokenBalances(
@@ -140,11 +138,10 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           //   return;
           // }
         } else {
-          toast(`Please, connect your wallet!`, {
-            theme: "dark",
-          });
-
-          return;
+          // toast(`Please, connect your wallet!`, {
+          //   theme: "dark",
+          // });
+          // return;
         }
 
         break;
@@ -171,7 +168,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   }));
 
   const contentStyle: React.CSSProperties = {
-    height: "40vh",
+    height: "60vh",
     textAlign: "center",
     color: token.colorTextTertiary,
     backgroundColor: token.colorFillAlter,
