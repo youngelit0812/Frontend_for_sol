@@ -110,10 +110,11 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
 
         let totalWeight = 0;
         let newTokenAmountList = [...tokenAmounts];
-        tokenWeights.map((tokenWeight, index) => {          
-          newTokenAmountList[index] = newTokenAmountList[0] * tokenWeight / tokenWeights[0];
+        tokenWeights.map((tokenWeight, index) => {
+          newTokenAmountList[index] =
+            (newTokenAmountList[0] * tokenWeight) / tokenWeights[0];
           totalWeight += Number(tokenWeight);
-        });        
+        });
 
         if (totalWeight != 100) {
           toast(
@@ -127,7 +128,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
         }
 
         setTokenAmounts(newTokenAmountList);
-        
+
         if (publicKey) {
           // if (
           //   !(await checkTokenBalances(
@@ -143,10 +144,11 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           //   return;
           // }
         } else {
-          // toast(`Please, connect your wallet!`, {
-          //   theme: "dark",
-          // });
-          // return;
+          toast(`Please, connect your wallet!`, {
+            theme: "dark",
+          });
+          
+          return;
         }
 
         const mintAddrA = "";
@@ -155,10 +157,19 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
 
         let ataA, ataB, ataS;
         if (publicKey) {
-          ataA = findAssociatedTokenAddress(publicKey, new PublicKey(mintAddrA));
-          ataB = findAssociatedTokenAddress(publicKey, new PublicKey(mintAddrB));
-          ataS = findAssociatedTokenAddress(publicKey, new PublicKey(mintAddrS));       
-          
+          ataA = findAssociatedTokenAddress(
+            publicKey,
+            new PublicKey(mintAddrA)
+          );
+          ataB = findAssociatedTokenAddress(
+            publicKey,
+            new PublicKey(mintAddrB)
+          );
+          ataS = findAssociatedTokenAddress(
+            publicKey,
+            new PublicKey(mintAddrS)
+          );
+
           const components: LiquidityComponent[] = [
             {
               account: ataA,
@@ -176,8 +187,14 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
               amount: 10,
             },
           ];
-          
-          addLiquidity(publicKey, signTransaction, connection, components, 0);
+
+          if (signTransaction) {
+            addLiquidity(publicKey, signTransaction, connection, components, 0);
+          } else {
+            toast(`Please, connect your wallet!`, {
+              theme: "dark",
+            });
+          }
         }
 
         break;

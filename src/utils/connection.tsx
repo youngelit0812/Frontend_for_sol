@@ -2,8 +2,13 @@ import React, { useContext } from "react";
 import {
   Account,
   clusterApiUrl,
+  Connection,
+  ConfirmOptions,
+  PublicKey,
   Transaction,
+  sendAndConfirmTransaction
 } from "@solana/web3.js";
+import { SignerWalletAdapterProps } from "@solana/wallet-adapter-base";
 
 import { useLocalStorageState } from "./utils";
 import { setProgramIds } from "./ids";
@@ -86,45 +91,40 @@ export function getEndpointName(endPoint: string) {
 };
 
 export const sendTransaction = async (
-  connection: any,
-  wallet: any,
+  connection: Connection,
+  walletPubKey: PublicKey,
   transaction: Transaction,
+  signTransaction: SignerWalletAdapterProps['signTransaction'],
   signers: Account[],
-  awaitConfirmation = true
 ) => {
-  transaction.recentBlockhash = (
-    await connection.getRecentBlockhash("max")
-  ).blockhash;
-  transaction.setSigners(
-    // fee payied by the wallet owner
-    wallet.publicKey,
-    ...signers.map((s) => s.publicKey)
-  );
-  if (signers.length > 0) {
-    transaction.partialSign(...signers);
-  }
-  transaction = await wallet.signTransaction(transaction);
-  const rawTransaction = transaction.serialize();
-  let options = {
-    skipPreflight: true,
-    commitment: "singleGossip",
-  };
-
-  const txid = await connection.sendRawTransaction(rawTransaction, options);
-
-  if (awaitConfirmation) {
-    const status = (
-      await connection.confirmTransaction(txid, options && options.commitment)
-    ).value;
-
-    if (status.err) {
-      console.log("sendTransaction failed: ");
-
-      throw new Error(
-        `Raw transaction ${txid} failed (${JSON.stringify(status)})`
-      );
+  let txid;
+  try{
+    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.setSigners(
+      // fee payied by the wallet owner
+      walletPubKey,
+      ...signers.map((s) => s.publicKey)
+    );
+    if (signers.length > 0) {
+      transaction.partialSign(...signers);
     }
-  }
+    
+    transaction = await signTransaction(transaction);
+    let options : ConfirmOptions = {
+      skipPreflight: true,
+      commitment: "singleGossip",
+    };
 
+    txid = await sendAndConfirmTransaction(connection, transaction, signers, options);
+
+    if (txid) {
+      console.log("sendTransaction Succeed");
+    } else {
+      console.log("sendTransaction failed.");
+    }
+  } catch (error) {
+    console.log("Connection-sendTransaction error:", error);
+  }
+      
   return txid;
 };
