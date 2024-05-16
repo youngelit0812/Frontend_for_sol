@@ -22,7 +22,7 @@ export const SPLTokenListProvider: FC<{ children: ReactNode }> = ({ children }) 
     };
   
     fetchTokenList();
-  }, []);
+  }, [env]);
 
   return (
     <SPLTokenListContext.Provider value={{ tokenList }}>

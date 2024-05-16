@@ -134,7 +134,7 @@ export const TokenSelectModal: React.FC<TokenSelectLPProps> = ({
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginBottom: "3vh",
+                marginBottom: "4vh",
               }}
             >
               <Avatar src={logoURI} size={40} />
