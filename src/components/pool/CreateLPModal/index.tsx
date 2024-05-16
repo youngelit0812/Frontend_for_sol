@@ -100,7 +100,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const next = async () => {
     switch (current) {
       case 0:
-        console.log(`pubKey: ${publicKey}`);
+        
         if (tokenAmounts[0] <= 0) {
           toast(`Please, input correct token amount`, {
             theme: "dark",
@@ -131,6 +131,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
         setTokenAmounts(newTokenAmountList);
 
         if (publicKey) {
+          console.log(`pubKey: ${publicKey}`);
           // if (
           //   !(await checkTokenBalances(
           //     connection,
