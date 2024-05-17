@@ -5,8 +5,8 @@ export interface PoolInfo {
   pubkeys: {
     program: PublicKey;
     account: PublicKey;
-    holdingAccounts: PublicKey[];
-    holdingMints: PublicKey[];
+    holdingAccounts: PublicKey[]; //token ATA provided to pool
+    holdingMints: PublicKey[];//token mint account provided to pool
     mint: PublicKey;
     feeAccount?: PublicKey;
   };  

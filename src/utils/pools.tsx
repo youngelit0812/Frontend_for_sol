@@ -1,23 +1,23 @@
 import {
   Account,
   Connection,
+  Keypair,
   PublicKey,
   SystemProgram,
-  TransactionInstruction,
+  SYSVAR_RENT_PUBKEY,
   Transaction,
-  Keypair,
 } from "@solana/web3.js";
 //   import { sendTransaction, useConnection } from "./connection";
 import { useEffect, useState } from "react";
 import { Token, MintLayout, AccountLayout } from "@solana/spl-token";
 import { SignerWalletAdapterProps } from "@solana/wallet-adapter-base";
 //   import { notify } from "./notifications";
-//   import {
-//     cache,
-//     getCachedAccount,
-//     useUserAccounts,
-//     useCachedPool,
-//   } from "./accounts";
+import {
+  //     cache,
+  //     getCachedAccount,
+  //     useUserAccounts,
+  useCachedPool,
+} from "./accounts";
 import { programIds } from "./ids";
 
 import { sendTransaction } from "utils/connection";
@@ -284,12 +284,7 @@ export const addLiquidity = async (
       components
     );
   } else {
-    await _addLiquidityExistingPool(
-      pool,
-      components,
-      connection,
-      slippage
-    );
+    // await _addLiquidityExistingPool(pool, components, connection, slippage);
   }
 };
 
@@ -299,9 +294,9 @@ export const addLiquidity = async (
 //     );
 //   };
 
-//item: typeof TokenSwapLayout
+//item: typeof PoolLayout
 const toPoolInfo = (item: any, program: PublicKey, toMerge?: PoolInfo) => {
-  const mint = new PublicKey(item.data.tokenPool);
+  const mint = new PublicKey(item.data.mint_lpt);
   return {
     pubkeys: {
       account: item.pubkey,
@@ -396,45 +391,46 @@ export const usePools = (connection: Connection) => {
   return { pools };
 };
 
-// export const usePoolForBasket = (
-//   connection: Connection,
-//   mints: (string | undefined)[]
-// ) => {
-//   const { pools } = useCachedPool();
-//   const [pool, setPool] = useState<PoolInfo>();
-//   const sortedMints = [...mints].sort();
-//   useEffect(() => {
-//     (async () => {
-//       // reset pool during query
-//       setPool(undefined);
+export const usePoolForBasket = (
+  connection: Connection,
+  mints: (string | undefined)[]
+) => {
+  const { pools } = useCachedPool();
+  const [pool, setPool] = useState<PoolInfo>();
+  const sortedMints = [...mints].sort();
+  useEffect(() => {
+    (async () => {
+      // reset pool during query
+      setPool(undefined);
 
-//       let matchingPool = pools
-//         .filter((p) => !p.legacy)
-//         .filter((p) =>
-//           p.pubkeys.holdingMints
-//             .map((a) => a.toBase58())
-//             .sort()
-//             .every((address, i) => address === sortedMints[i])
-//         );
+      let matchingPool = pools.filter((p) =>
+        p.pubkeys.holdingMints
+          .map((a) => a.toBase58())
+          .sort()
+          .every((address, i) => address === sortedMints[i])
+      );
 
-//       for (let i = 0; i < matchingPool.length; i++) {
-//         const p = matchingPool[i];
+      if (matchingPool.length > 0) {
+        setPool(matchingPool[0]);
+      }
+      // for (let i = 0; i < matchingPool.length; i++) {
+      //   const p = matchingPool[i];
 
-//         const account = await cache.getAccount(
-//           connection,
-//           p.pubkeys.holdingAccounts[0]
-//         );
+      //   const account = await cache.getAccount(
+      //     connection,
+      //     p.pubkeys.holdingAccounts[0]
+      //   );
 
-//         if (!account.info.amount.eqn(0)) {
-//           setPool(p);
-//           return;
-//         }
-//       }
-//     })();
-//   }, [connection, ...sortedMints, pools]);
+      //   if (!account.info.amount.eqn(0)) {
+      //     setPool(p);
+      //     return;
+      //   }
+      // }
+    })();
+  }, [connection, ...sortedMints, pools]);
 
-//   return pool;
-// };
+  return pool;
+};
 
 //   export const useOwnedPools = () => {
 //     const { pools } = useCachedPool();
@@ -467,7 +463,7 @@ async function _addLiquidityExistingPool(
   connection: Connection,
   wallet: any,
   SLIPPAGE: number
-) {  
+) {
   //     const poolMint = await cache.getMint(connection, pool.pubkeys.mint);
   //     if (!poolMint.mintAuthority) {
   //       throw new Error("Mint doesnt have authority");
@@ -711,122 +707,165 @@ async function _addLiquidityNewPool(
   connection: Connection,
   components: LiquidityComponent[]
 ) {
-  if (components.some((c) => !c.account)) {
-    console.log("_addLiquidityNewPool - account is missing");
-    return;
-  }
-
-  let transactions = new Transaction();
-  const liquidityTokenAccount = new Account();
-  // Create account for pool liquidity token
-  transactions.add(
-    SystemProgram.createAccount({
-      fromPubkey: walletPubKey,
-      newAccountPubkey: liquidityTokenAccount.publicKey,
-      lamports: await connection.getMinimumBalanceForRentExemption(
-        MintLayout.span
-      ),
-      space: MintLayout.span,
-      programId: programIds().token,
-    })
-  );
-
-  const poolAccount = new Account();
-
-  const [authority_PDA_poolAccount, nonce] = await PublicKey.findProgramAddress(
-    [poolAccount.publicKey.toBuffer()],
-    programIds().swap
-  );
-
-  // create mint for pool liquidity token
-  transactions.add(
-    Token.createInitMintInstruction(
-      programIds().token,
-      liquidityTokenAccount.publicKey,
-      LIQUIDITY_TOKEN_PRECISION,
-      // pass control of liquidity mint to swap program
-      authority_PDA_poolAccount,
-      // swap program can freeze liquidity token mint
-      null
-    )
-  );
-
-  let treasurerAccount = createTreasurerPubkey(
-    authority_PDA_poolAccount,
-    programIds().swap
-  );
-
-  const accountRentExempt = await connection.getMinimumBalanceForRentExemption(
-    AccountLayout.span
-  );
-  // Create holding accounts for
-  const holdingAccounts: Account[] = [];
-  let signers: Account[] = [];
-
-  components.forEach((leg) => {
-    if (!leg.account) {
+  try {
+    console.log("_addLiquidityNewPool 1");
+    if (components.some((c) => !c.account)) {
+      console.log("_addLiquidityNewPool - account is missing");
       return;
     }
 
-    // component account to store tokens I of N in liquidity pool
-    holdingAccounts.push(
-      createSplAccountWithoutInit(
-        transactions,
-        walletPubKey,
-        accountRentExempt,
-        AccountLayout.span
+    let transactions = new Transaction();
+    const liquidityTokenAccount = new Account();
+    // Create account for pool liquidity token
+    transactions.add(
+      SystemProgram.createAccount({
+        fromPubkey: walletPubKey,
+        newAccountPubkey: liquidityTokenAccount.publicKey,
+        lamports: await connection.getMinimumBalanceForRentExemption(
+          MintLayout.span
+        ),
+        space: MintLayout.span,
+        programId: programIds().token,
+      })
+    );
+
+    const poolAccount = new Account();
+
+    const [authority_PDA_poolAccount, nonce] =
+      await PublicKey.findProgramAddress(
+        [poolAccount.publicKey.toBuffer()],
+        programIds().swap
+      );
+    console.log("_addLiquidityNewPool 2");
+    // create mint for pool liquidity token
+    transactions.add(
+      Token.createInitMintInstruction(
+        programIds().token,
+        liquidityTokenAccount.publicKey,
+        LIQUIDITY_TOKEN_PRECISION,
+        // pass control of liquidity mint to swap program
+        authority_PDA_poolAccount,
+        // swap program can freeze liquidity token mint
+        null
       )
     );
-  });
 
-  await sendTransaction(
-    connection,
-    walletPubKey,
-    transactions,
-    signTransaction,
-    []
-  );
+    let treasurerAccount = await createTreasurerPubkey(
+      authority_PDA_poolAccount,
+      programIds().swap
+    );
+    console.log("_addLiquidityNewPool 3");
+    const accountRentExempt =
+      await connection.getMinimumBalanceForRentExemption(AccountLayout.span);
+    // Create holding accounts for
+    const holdingAccounts: Account[] = [];
+    let signers: Account[] = [];
 
-  transactions = new Transaction();
+    components.forEach((leg) => {
+      if (!leg.account) {
+        return;
+      }
 
-  transactions.add(
-    SystemProgram.createAccount({
-      fromPubkey: walletPubKey,
-      newAccountPubkey: poolAccount.publicKey,
-      lamports: await connection.getMinimumBalanceForRentExemption(
-        PoolLayout.span
-      ),
-      space: PoolLayout.span,
-      programId: programIds().swap,
-    })
-  );
+      // component account to store tokens I of N in liquidity pool
+      holdingAccounts.push(
+        createSplAccountWithoutInit(
+          transactions,
+          walletPubKey,
+          accountRentExempt,
+          AccountLayout.span
+        )
+      );
+    });
+    console.log("_addLiquidityNewPool 4");
+    await sendTransaction(
+      connection,
+      walletPubKey,
+      transactions,
+      signTransaction,
+      []
+    );
+    console.log("_addLiquidityNewPool 5");
+    transactions = new Transaction();
 
-  // transactions.add(
-  //   createInitPoolInstruction(
-  //     walletPubKey,
-  //     walletPubKey,
-  //     poolAccount,
-  //     authority_PDA_poolAccount,
-  //     liquidityTokenAccount,
-  //     vaultAccount,
-  //     proofAccount,
-  //     components[0].account,
-  //     components[0].mintAddress,
-  //     holdingAccounts[0].publicKey,
-  //     components[1].account,
-  //     components[1].mintAddress,
-  //     holdingAccounts[1].publicKey,
-  //     components[2].account,
-  //     components[2].mintAddress,
-  //     holdingAccounts[2].publicKey,
-  //     treasurerAccount,
-  //     SystemProgram.programId,
-  //     programIds().token,
-  //     sysVarRentAccount,
-  //     programIds().ata,
-  //     programIds().swap,
-  //   )
-  // );
+    transactions.add(
+      SystemProgram.createAccount({
+        fromPubkey: walletPubKey,
+        newAccountPubkey: poolAccount.publicKey,
+        lamports: await connection.getMinimumBalanceForRentExemption(
+          PoolLayout.span
+        ),
+        space: PoolLayout.span,
+        programId: programIds().swap,
+      })
+    );
+
+    const vaultKeyPair = Keypair.generate();
+    transactions.add(
+      SystemProgram.createAccount({
+        fromPubkey: walletPubKey,
+        newAccountPubkey: vaultKeyPair.publicKey,
+        lamports: accountRentExempt,
+        space: AccountLayout.span,
+        programId: programIds().swap,
+      })
+    );
+
+    const proof_for_freezeKeyPair = Keypair.generate();
+    transactions.add(
+      SystemProgram.createAccount({
+        fromPubkey: walletPubKey,
+        newAccountPubkey: proof_for_freezeKeyPair.publicKey,
+        lamports: accountRentExempt,
+        space: AccountLayout.span,
+        programId: programIds().swap,
+      })
+    );
+    console.log("_addLiquidityNewPool 6");
+    if (
+      !components[0].account ||
+      !components[1].account ||
+      !components[2].account
+    )
+      return;
+      console.log("_addLiquidityNewPool 7");
+    transactions.add(
+      createInitPoolInstruction(
+        walletPubKey,
+        walletPubKey,
+        poolAccount.publicKey,
+        authority_PDA_poolAccount,
+        liquidityTokenAccount.publicKey,
+        vaultKeyPair.publicKey,
+        proof_for_freezeKeyPair.publicKey,
+        components[0].account,
+        new PublicKey(components[0].mintAddress),
+        holdingAccounts[0].publicKey,
+        components[1].account,
+        new PublicKey(components[1].mintAddress),
+        holdingAccounts[1].publicKey,
+        components[2].account,
+        new PublicKey(components[2].mintAddress),
+        holdingAccounts[2].publicKey,
+        treasurerAccount,
+        SystemProgram.programId,
+        programIds().token,
+        new PublicKey(SYSVAR_RENT_PUBKEY),
+        programIds().ata,
+        programIds().swap
+      )
+    );
+    console.log("_addLiquidityNewPool 8");
+    await sendTransaction(
+      connection,
+      walletPubKey,
+      transactions,
+      signTransaction,
+      []
+    );
+    console.log("_addLiquidityNewPool OK");
+  } catch (error) {
+    console.log("_addLiquidityNewPool : error : ", error);
+  }
 }
 
 function createSplAccountWithoutInit(

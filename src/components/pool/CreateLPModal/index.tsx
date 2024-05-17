@@ -154,9 +154,9 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           return;
         }
 
-        const mintAddrA = "";
-        const mintAddrB = "";
-        const mintAddrS = "";
+        const mintAddrA = "BwCPrNEsWZGPgmFzRsxqcPq2H5Nvj3BEQGL1XwoEP3v3";
+        const mintAddrB = "8rx1ff9ZB1oFKPgDYCHyqBT5fcaMebmokstK1Pi9o1V3";
+        const mintAddrS = "8W7xr3SCguhXuheqc4ypruAdcaQuabNC5QWJNVd2WS3Y";
 
         let ataA, ataB, ataS;
         if (publicKey) {
@@ -177,17 +177,17 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
             {
               account: ataA,
               mintAddress: mintAddrA,
-              amount: 10,
+              amount: 0.1,
             },
             {
               account: ataB,
               mintAddress: mintAddrB,
-              amount: 10,
+              amount: 0.1,
             },
             {
               account: ataS,
               mintAddress: mintAddrS,
-              amount: 10,
+              amount: 0.1,
             },
           ];
 
