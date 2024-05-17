@@ -17,7 +17,3 @@ HTachcfzKAoGGqNiMRjXCgecNUK6sGoBk9GBUFNfyq1j
 /home/devstack/.config/solana/id.json
 badge toss deer local series same sound easily retreat powder thumb adjust
 
-
-spl-token create-token
-spl-token create-account --fee-payer HTachcfzKAoGGqNiMRjXCgecNUK6sGoBk9GBUFNfyq1j --owner HTachcfzKAoGGqNiMRjXCgecNUK6sGoBk9GBUFNfyq1j BwCPrNEsWZGPgmFzRsxqcPq2H5Nvj3BEQGL1XwoEP3v3
-

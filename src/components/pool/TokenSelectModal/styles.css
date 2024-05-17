@@ -2,6 +2,6 @@
     align-items: center;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     margin-bottom: 4vh;
 }
