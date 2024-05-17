@@ -3,6 +3,9 @@
 ### Development Environment ###
     Node : 16.20.0
 
+### old DEX Pro id ###
+BSfTAcBdqmvX5iE2PW88WFNNp2DHhLUaBKk5WrnxVkcJ
+
 ### Pro ID ###
 FMTN5crpbCkxBSJ5Xpe6RHstACDkoWo7ukNV4Y9yL66R
 

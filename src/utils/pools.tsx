@@ -284,12 +284,12 @@ export const addLiquidity = async (
       components
     );
   } else {
-    // await _addLiquidityExistingPool(
-    //   pool,
-    //   components,
-    //   connection,
-    //   slippage
-    // );
+    await _addLiquidityExistingPool(
+      pool,
+      components,
+      connection,
+      slippage
+    );
   }
 };
 
@@ -467,12 +467,7 @@ async function _addLiquidityExistingPool(
   connection: Connection,
   wallet: any,
   SLIPPAGE: number
-) {
-  //     notify({
-  //       message: "Adding Liquidity...",
-  //       description: "Please review transactions to approve.",
-  //       type: "warn",
-  //     });
+) {  
   //     const poolMint = await cache.getMint(connection, pool.pubkeys.mint);
   //     if (!poolMint.mintAuthority) {
   //       throw new Error("Mint doesnt have authority");
