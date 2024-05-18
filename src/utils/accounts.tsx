@@ -9,18 +9,38 @@ import { usePools } from "utils/pools";
 
 const AccountsContext = React.createContext<any>(null);
 
-export function findAssociatedTokenAddress(
+export async function findAssociatedTokenAddress(
+  connection: Connection,
     walletAddress: PublicKey,
     tokenMintAddress: PublicKey
-): PublicKey {
-    return PublicKey.findProgramAddressSync(
-        [
-            walletAddress.toBuffer(),
-            TOKEN_PROGRAM_ID.toBuffer(),
-            tokenMintAddress.toBuffer(),
-        ],
-        SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
-    )[0];
+): Promise<PublicKey> {
+  let tokenAccountForMint;
+
+  try {
+    const tokenAccounts = await connection.getTokenAccountsByOwner(
+      walletAddress,
+      {
+        programId: TOKEN_PROGRAM_ID,
+      }
+    );
+
+    for (const tokenAccount of tokenAccounts.value) {
+      const accountData = AccountLayout.decode(tokenAccount.account.data);
+      if (accountData.mint.equals(tokenMintAddress)) {
+        console.log(`account: ${tokenAccount.pubkey.toString()}, mint: ${tokenMintAddress.toString()}`);
+        tokenAccountForMint = tokenAccount.pubkey;
+        break;
+      }
+    }
+  } catch (error) {
+    console.log("accounts-findAssociatedTokenAddress: error:", error);
+  }
+
+  if(!tokenAccountForMint) {
+    throw new Error('No token account found for this mint address');
+  }
+
+  return tokenAccountForMint;
 }
 
 // class AccountUpdateEvent extends Event {

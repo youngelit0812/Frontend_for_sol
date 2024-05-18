@@ -18,6 +18,13 @@ FMTN5crpbCkxBSJ5Xpe6RHstACDkoWo7ukNV4Y9yL66R
 ##token 3: 8W7xr3SCguhXuheqc4ypruAdcaQuabNC5QWJNVd2WS3Y
 31nF73PxmyJuyWk45Na5TCqAEpLfHXJxJP7YsPZsPBL9
 
+-----------------------------------------
+1: 8jHQEQFWhKbiDu742BuSYA6ATGSnqRm1o7mL2U7nU56x
+
+2: DoNR2rFKf8i1JXkWB2rtZpneBTBfx7LzDYPpGGLkYuwP
+
+3: DntoFzFtB5C5tqG8P1Hv511YBrPCefpj9M1CWbSrDvgc
+
 Wallet
 HTachcfzKAoGGqNiMRjXCgecNUK6sGoBk9GBUFNfyq1j
 /home/devstack/.config/solana/id.json

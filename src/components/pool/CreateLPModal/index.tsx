@@ -133,19 +133,19 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
 
         if (publicKey) {
           console.log(`pubKey: ${publicKey}`);
-          if (
-            !(await checkTokenBalances(
-              connection,
-              mintAddresss,
-              tokenAmounts,
-              publicKey
-            ))
-          ) {
-            toast(`Not sufficient balance in your wallet. Please, charge!`, {
-              theme: "dark",
-            });
-            return;
-          }
+          // if (
+          //   !(await checkTokenBalances(
+          //     connection,
+          //     mintAddresss,
+          //     tokenAmounts,
+          //     publicKey
+          //   ))
+          // ) {
+          //   toast(`Not sufficient balance in your wallet. Please, charge!`, {
+          //     theme: "dark",
+          //   });
+          //   return;
+          // }
         } else {
           toast(`Please, connect your wallet!`, {
             theme: "dark",
@@ -154,21 +154,24 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           return;
         }
 
-        const mintAddrA = "BwCPrNEsWZGPgmFzRsxqcPq2H5Nvj3BEQGL1XwoEP3v3";
-        const mintAddrB = "8rx1ff9ZB1oFKPgDYCHyqBT5fcaMebmokstK1Pi9o1V3";
-        const mintAddrS = "8W7xr3SCguhXuheqc4ypruAdcaQuabNC5QWJNVd2WS3Y";
+        const mintAddrA = "8jHQEQFWhKbiDu742BuSYA6ATGSnqRm1o7mL2U7nU56x";
+        const mintAddrB = "DoNR2rFKf8i1JXkWB2rtZpneBTBfx7LzDYPpGGLkYuwP";
+        const mintAddrS = "DntoFzFtB5C5tqG8P1Hv511YBrPCefpj9M1CWbSrDvgc";
 
         let ataA, ataB, ataS;
         if (publicKey) {
-          ataA = findAssociatedTokenAddress(
+          ataA = await findAssociatedTokenAddress(
+            connection,
             publicKey,
             new PublicKey(mintAddrA)
           );
-          ataB = findAssociatedTokenAddress(
+          ataB = await findAssociatedTokenAddress(
+            connection,
             publicKey,
             new PublicKey(mintAddrB)
           );
-          ataS = findAssociatedTokenAddress(
+          ataS = await findAssociatedTokenAddress(
+            connection,
             publicKey,
             new PublicKey(mintAddrS)
           );
