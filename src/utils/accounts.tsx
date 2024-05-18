@@ -3,6 +3,7 @@ import { AccountInfo, Connection, PublicKey } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID, SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID } from "utils/ids";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { AccountLayout, u64, MintInfo, MintLayout } from "@solana/spl-token";
+import bs58 from "bs58";
 
 import { PoolInfo } from "models";
 import { usePools } from "utils/pools";
@@ -26,7 +27,9 @@ export async function findAssociatedTokenAddress(
 
     for (const tokenAccount of tokenAccounts.value) {
       const accountData = AccountLayout.decode(tokenAccount.account.data);
-      if (accountData.mint.equals(tokenMintAddress)) {
+      const mintAddress = bs58.decode(accountData.mint.toString()).toString('hex');
+      console.log(`item mint: ${mintAddress}`);
+      if (mintAddress === tokenMintAddress.toString()) {
         console.log(`account: ${tokenAccount.pubkey.toString()}, mint: ${tokenMintAddress.toString()}`);
         tokenAccountForMint = tokenAccount.pubkey;
         break;
