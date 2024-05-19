@@ -268,9 +268,9 @@ export const addLiquidity = async (
   signTransaction: SignerWalletAdapterProps["signTransaction"],
   connection: Connection,
   components: LiquidityComponent[],
+  options: PoolConfig,
   slippage?: number,
-  pool?: PoolInfo,
-  options?: PoolConfig
+  pool?: PoolInfo,  
 ) => {
   try{
     if (!pool) {
@@ -284,8 +284,8 @@ export const addLiquidity = async (
         connection,
         components
       );
-    } else {
-      // await _addLiquidityExistingPool(pool, components, connection, slippage);
+    } else {      
+      await _addLiquidityExistingPool(pool, components, connection, walletPubKey, slippage ? slippage : 0);
     }
   } catch (error) {
     console.log("pools-addLiquidity: error:", error);
@@ -483,8 +483,9 @@ async function _addLiquidityExistingPool(
   //       connection,
   //       pool.pubkeys.holdingAccounts[1]
   //     );
-  //     const reserve0 = accountA.info.amount.toNumber();
-  //     const reserve1 = accountB.info.amount.toNumber();
+
+      // const reserve0 = accountA.info.amount.toNumber();
+      // const reserve1 = accountB.info.amount.toNumber();
   //     const fromA =
   //       accountA.info.mint.toBase58() === components[0].mintAddress
   //         ? components[0]
