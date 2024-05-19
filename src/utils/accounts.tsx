@@ -26,10 +26,8 @@ export async function findAssociatedTokenAddress(
     );
 
     for (const tokenAccount of tokenAccounts.value) {
-      const accountData = AccountLayout.decode(tokenAccount.account.data);
-      const mintAddress = bs58.decode(accountData.mint.toString()).toString('hex');
-      console.log(`item mint: ${mintAddress}`);
-      if (mintAddress === tokenMintAddress.toString()) {
+      const accountData = AccountLayout.decode(tokenAccount.account.data);            
+      if (new PublicKey(accountData.mint).toString() === tokenMintAddress.toString()) {
         console.log(`account: ${tokenAccount.pubkey.toString()}, mint: ${tokenMintAddress.toString()}`);
         tokenAccountForMint = tokenAccount.pubkey;
         break;

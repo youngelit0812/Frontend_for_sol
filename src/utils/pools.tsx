@@ -268,7 +268,7 @@ export const addLiquidity = async (
   signTransaction: SignerWalletAdapterProps["signTransaction"],
   connection: Connection,
   components: LiquidityComponent[],
-  slippage: number,
+  slippage?: number,
   pool?: PoolInfo,
   options?: PoolConfig
 ) => {

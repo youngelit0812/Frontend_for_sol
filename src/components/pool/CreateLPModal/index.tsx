@@ -10,7 +10,7 @@ import { SetLiquidity } from "../SetLiquidity";
 import { ConfirmCreateLP } from "../ConfirmCreateLP";
 import { findAssociatedTokenAddress } from "utils/accounts";
 import { addLiquidity } from "utils/pools";
-import { checkTokenBalances } from "utils/walletUtil";
+import { PoolConfig } from "models";
 
 import {
   CreateLPModalWrapper,
@@ -26,6 +26,8 @@ type CreateLPProps = {
   onClose: () => void;
 };
 
+export const DEFAULT_DENOMINATOR = 10_000;
+
 export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const { connection } = useConnection();
   const { publicKey, signTransaction } = useWallet();
@@ -35,6 +37,15 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const [tokenAmounts, setTokenAmounts] = useState<number[]>([0, 0]);
   const [tokenWeights, setTokenWeights] = useState<number[]>([0, 0]);
   const [lpTokenAmount, setLpTokenAmount] = useState(0);
+  const [options, setOptions] = useState<PoolConfig>({
+    curveType: 0,
+    tradeFeeNumerator: 25,
+    tradeFeeDenominator: DEFAULT_DENOMINATOR,
+    ownerTradeFeeNumerator: 5,
+    ownerTradeFeeDenominator: DEFAULT_DENOMINATOR,
+    ownerWithdrawFeeNumerator: 0,
+    ownerWithdrawFeeDenominator: DEFAULT_DENOMINATOR,
+  });
 
   const addMintAddress = (newMintAddress: string) => {
     setMintAddresss([...mintAddresss, newMintAddress]);
@@ -176,7 +187,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
             walletpublicKey,
             new PublicKey(mintAddrS)
           );
-
+          
           const components: LiquidityComponent[] = [
             {
               account: ataA,
@@ -196,7 +207,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           ];
 
           if (signTransaction) {
-            addLiquidity(walletpublicKey, signTransaction, connection, components, 0);
+            addLiquidity(walletpublicKey, signTransaction, connection, components, options);
           } else {
             toast(`Please, connect your wallet!`, {
               theme: "dark",
