@@ -187,7 +187,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
             walletpublicKey,
             new PublicKey(mintAddrS)
           );
-          
+
           const components: LiquidityComponent[] = [
             {
               account: ataA,

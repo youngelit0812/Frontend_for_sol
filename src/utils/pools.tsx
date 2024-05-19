@@ -272,19 +272,23 @@ export const addLiquidity = async (
   pool?: PoolInfo,
   options?: PoolConfig
 ) => {
-  if (!pool) {
-    if (!options) {
-      throw new Error("Options are required to create new pool.");
-    }
+  try{
+    if (!pool) {
+      if (!options) {
+        throw new Error("Options are required to create new pool.");
+      }
 
-    await _addLiquidityNewPool(
-      walletPubKey,
-      signTransaction,
-      connection,
-      components
-    );
-  } else {
-    // await _addLiquidityExistingPool(pool, components, connection, slippage);
+      await _addLiquidityNewPool(
+        walletPubKey,
+        signTransaction,
+        connection,
+        components
+      );
+    } else {
+      // await _addLiquidityExistingPool(pool, components, connection, slippage);
+    }
+  } catch (error) {
+    console.log("pools-addLiquidity: error:", error);
   }
 };
 

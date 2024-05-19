@@ -32,13 +32,14 @@ export async function findAssociatedTokenAddress(
         tokenAccountForMint = tokenAccount.pubkey;
         break;
       }
+    }  
+
+    if(!tokenAccountForMint) {
+      throw new Error('No token account found for this mint address');
     }
   } catch (error) {
     console.log("accounts-findAssociatedTokenAddress: error:", error);
-  }
-
-  if(!tokenAccountForMint) {
-    throw new Error('No token account found for this mint address');
+    return new PublicKey("");
   }
 
   return tokenAccountForMint;
