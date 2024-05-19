@@ -1,5 +1,4 @@
 import {
-  Account,
   Connection,
   Keypair,
   PublicKey,
@@ -9,7 +8,11 @@ import {
 } from "@solana/web3.js";
 //   import { sendTransaction, useConnection } from "./connection";
 import { useEffect, useState } from "react";
-import { Token, MintLayout, AccountLayout } from "@solana/spl-token";
+import {
+  Token,
+  MintLayout,
+  AccountLayout,
+} from "@solana/spl-token";
 import { SignerWalletAdapterProps } from "@solana/wallet-adapter-base";
 //   import { notify } from "./notifications";
 import {
@@ -270,9 +273,9 @@ export const addLiquidity = async (
   components: LiquidityComponent[],
   options: PoolConfig,
   slippage?: number,
-  pool?: PoolInfo,  
+  pool?: PoolInfo
 ) => {
-  try{
+  try {
     if (!pool) {
       if (!options) {
         throw new Error("Options are required to create new pool.");
@@ -284,8 +287,14 @@ export const addLiquidity = async (
         connection,
         components
       );
-    } else {      
-      await _addLiquidityExistingPool(pool, components, connection, walletPubKey, slippage ? slippage : 0);
+    } else {
+      await _addLiquidityExistingPool(
+        pool,
+        components,
+        connection,
+        walletPubKey,
+        slippage ? slippage : 0
+      );
     }
   } catch (error) {
     console.log("pools-addLiquidity: error:", error);
@@ -483,9 +492,8 @@ async function _addLiquidityExistingPool(
   //       connection,
   //       pool.pubkeys.holdingAccounts[1]
   //     );
-
-      // const reserve0 = accountA.info.amount.toNumber();
-      // const reserve1 = accountB.info.amount.toNumber();
+  // const reserve0 = accountA.info.amount.toNumber();
+  // const reserve1 = accountB.info.amount.toNumber();
   //     const fromA =
   //       accountA.info.mint.toBase58() === components[0].mintAddress
   //         ? components[0]
@@ -720,7 +728,7 @@ async function _addLiquidityNewPool(
     }
 
     let transactions = new Transaction();
-    const liquidityTokenAccount = new Account();
+    const liquidityTokenAccount = Keypair.generate();
     // Create account for pool liquidity token
     transactions.add(
       SystemProgram.createAccount({
@@ -734,7 +742,7 @@ async function _addLiquidityNewPool(
       })
     );
 
-    const poolAccount = new Account();
+    const poolAccount: Keypair = Keypair.generate();
 
     const [authority_PDA_poolAccount, nonce] =
       await PublicKey.findProgramAddress(
@@ -763,34 +771,70 @@ async function _addLiquidityNewPool(
     const accountRentExempt =
       await connection.getMinimumBalanceForRentExemption(AccountLayout.span);
     // Create holding accounts for
-    const holdingAccounts: Account[] = [];
-    let signers: Account[] = [];
+    const holdingAccounts: Keypair[] = [];
+    let signers: Keypair[] = [];
 
     components.forEach((leg) => {
       if (!leg.account) {
         return;
       }
 
+      const mintPublicKey = leg.mintAddress;
+
       // component account to store tokens I of N in liquidity pool
       holdingAccounts.push(
-        createSplAccountWithoutInit(
+        createSplAccount(
           transactions,
           walletPubKey,
           accountRentExempt,
+          new PublicKey(mintPublicKey),
+          authority_PDA_poolAccount,
           AccountLayout.span
         )
       );
     });
+
+    const vaultKeyPair = createSplAccount(
+      transactions,
+      walletPubKey,
+      accountRentExempt,
+      liquidityTokenAccount.publicKey,
+      poolAccount.publicKey,
+      AccountLayout.span
+    );
+
+    const proof_for_freezeKeyPair = createSplAccount(
+      transactions,
+      walletPubKey,
+      accountRentExempt,
+      liquidityTokenAccount.publicKey,
+      poolAccount.publicKey,
+      AccountLayout.span      
+    );
+
     console.log("_addLiquidityNewPool 4");
-    await sendTransaction(
+    let txId = await sendTransaction(
       connection,
       walletPubKey,
       transactions,
       signTransaction,
-      []
+      [
+        liquidityTokenAccount,
+        proof_for_freezeKeyPair,
+        vaultKeyPair,
+        ...holdingAccounts,
+        ...signers,
+      ]
     );
+
+    if (txId == null) {
+      console.log("_addLiquidityNewPool failed: create accounts failed");
+      return;
+    }
+
     console.log("_addLiquidityNewPool 5");
     transactions = new Transaction();
+    signers = [];
 
     transactions.add(
       SystemProgram.createAccount({
@@ -803,28 +847,7 @@ async function _addLiquidityNewPool(
         programId: programIds().swap,
       })
     );
-
-    const vaultKeyPair = Keypair.generate();
-    transactions.add(
-      SystemProgram.createAccount({
-        fromPubkey: walletPubKey,
-        newAccountPubkey: vaultKeyPair.publicKey,
-        lamports: accountRentExempt,
-        space: AccountLayout.span,
-        programId: programIds().swap,
-      })
-    );
-
-    const proof_for_freezeKeyPair = Keypair.generate();
-    transactions.add(
-      SystemProgram.createAccount({
-        fromPubkey: walletPubKey,
-        newAccountPubkey: proof_for_freezeKeyPair.publicKey,
-        lamports: accountRentExempt,
-        space: AccountLayout.span,
-        programId: programIds().swap,
-      })
-    );
+    
     console.log("_addLiquidityNewPool 6");
     if (
       !components[0].account ||
@@ -832,7 +855,7 @@ async function _addLiquidityNewPool(
       !components[2].account
     )
       return;
-      console.log("_addLiquidityNewPool 7");
+    console.log("_addLiquidityNewPool 7");
     transactions.add(
       createInitPoolInstruction(
         walletPubKey,
@@ -860,27 +883,37 @@ async function _addLiquidityNewPool(
       )
     );
     console.log("_addLiquidityNewPool 8");
-    await sendTransaction(
+    txId = await sendTransaction(
       connection,
       walletPubKey,
       transactions,
       signTransaction,
-      []
+      [poolAccount, ...signers]
     );
+
+    if (txId == null) {
+      console.log(
+        "_addLiquidityNewPool failed: create pool failed with wallet sign"
+      );
+      return;
+    }
     console.log("_addLiquidityNewPool OK");
   } catch (error) {
     console.log("_addLiquidityNewPool : error : ", error);
   }
 }
 
-function createSplAccountWithoutInit(
-  transactions: Transaction,
+function createSplAccount(
+  transaction: Transaction,
   payer: PublicKey,
   accountRentExempt: number,
+  mint: PublicKey,
+  owner: PublicKey,
   space: number
 ) {
-  const account = new Account();
-  transactions.add(
+  const account: Keypair = Keypair.generate();
+
+  transaction.add(
     SystemProgram.createAccount({
       fromPubkey: payer,
       newAccountPubkey: account.publicKey,
@@ -888,6 +921,15 @@ function createSplAccountWithoutInit(
       space,
       programId: programIds().token,
     })
+  );
+
+  transaction.add(
+    Token.createInitAccountInstruction(
+      programIds().token,
+      mint,
+      account.publicKey,
+      owner
+    )
   );
 
   return account;

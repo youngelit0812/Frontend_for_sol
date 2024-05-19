@@ -170,21 +170,20 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
         const mintAddrS = "DntoFzFtB5C5tqG8P1Hv511YBrPCefpj9M1CWbSrDvgc";
 
         let ataA, ataB, ataS;
-        if (publicKey) {
-          const walletpublicKey = new PublicKey("HTachcfzKAoGGqNiMRjXCgecNUK6sGoBk9GBUFNfyq1j");
+        if (publicKey) {          
           ataA = await findAssociatedTokenAddress(
             connection,
-            walletpublicKey,
+            publicKey,
             new PublicKey(mintAddrA)
           );
           ataB = await findAssociatedTokenAddress(
             connection,
-            walletpublicKey,
+            publicKey,
             new PublicKey(mintAddrB)
           );
           ataS = await findAssociatedTokenAddress(
             connection,
-            walletpublicKey,
+            publicKey,
             new PublicKey(mintAddrS)
           );
 
@@ -207,7 +206,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
           ];
 
           if (signTransaction) {
-            addLiquidity(walletpublicKey, signTransaction, connection, components, options);
+            addLiquidity(publicKey, signTransaction, connection, components, options);
           } else {
             toast(`Please, connect your wallet!`, {
               theme: "dark",
