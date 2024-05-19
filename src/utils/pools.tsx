@@ -794,24 +794,6 @@ async function _addLiquidityNewPool(
       );
     });
 
-    const vaultKeyPair = createSplAccount(
-      transactions,
-      walletPubKey,
-      accountRentExempt,
-      liquidityTokenAccount.publicKey,
-      poolAccount.publicKey,
-      AccountLayout.span
-    );
-
-    const proof_for_freezeKeyPair = createSplAccount(
-      transactions,
-      walletPubKey,
-      accountRentExempt,
-      liquidityTokenAccount.publicKey,
-      poolAccount.publicKey,
-      AccountLayout.span      
-    );
-
     console.log("_addLiquidityNewPool 4");
     let txId = await sendTransaction(
       connection,
@@ -820,8 +802,6 @@ async function _addLiquidityNewPool(
       signTransaction,
       [
         liquidityTokenAccount,
-        proof_for_freezeKeyPair,
-        vaultKeyPair,
         ...holdingAccounts,
         ...signers,
       ]
@@ -848,6 +828,24 @@ async function _addLiquidityNewPool(
       })
     );
     
+    const vaultKeyPair = createSplAccount(
+      transactions,
+      walletPubKey,
+      accountRentExempt,
+      liquidityTokenAccount.publicKey,
+      poolAccount.publicKey,
+      AccountLayout.span
+    );
+
+    const proof_for_freezeKeyPair = createSplAccount(
+      transactions,
+      walletPubKey,
+      accountRentExempt,
+      liquidityTokenAccount.publicKey,
+      poolAccount.publicKey,
+      AccountLayout.span      
+    );
+
     console.log("_addLiquidityNewPool 6");
     if (
       !components[0].account ||
@@ -888,7 +886,7 @@ async function _addLiquidityNewPool(
       walletPubKey,
       transactions,
       signTransaction,
-      [poolAccount, ...signers]
+      [poolAccount, vaultKeyPair, ...signers]
     );
 
     if (txId == null) {
