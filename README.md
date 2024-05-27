@@ -30,10 +30,13 @@ HTachcfzKAoGGqNiMRjXCgecNUK6sGoBk9GBUFNfyq1j
 /home/devstack/.config/solana/id.json
 badge toss deer local series same sound easily retreat powder thumb adjust
 
-spl-token mint BwCPrNEsWZGPgmFzRsxqcPq2H5Nvj3BEQGL1XwoEP3v3 100
-Minting 100 tokens
-  Token: BwCPrNEsWZGPgmFzRsxqcPq2H5Nvj3BEQGL1XwoEP3v3
-  Recipient: 87BK34MMkD8fo1ouMpaYqNffnxzdVq1xAcMqX5ob6MnV
-Error: Client(Error { request: Some(SendTransaction), kind: RpcError(RpcResponseError { code: -32002, message: "Transaction simulation failed: Error processing Instruction 0: custom program error: 0x4", data: SendTransactionPreflightFailure(RpcSimulateTransactionResult { err: Some(InstructionError(0, Custom(4))), logs: Some(["Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [1]", "Program log: Instruction: MintToChecked", "Program log: Error: owner does not match", "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 4259 of 4259 compute units", "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA failed: custom program error: 0x4"]), accounts: None, units_consumed: Some(4259), return_data: None, inner_instructions: None }) }) })
+
+https://github.com/valentintimko80/ASP.NETCore-MultiFamilyPortal
+https://github.com/valentintimko80/ASP.NETCore-and-React-multifamilyportal-v2
+
+apinhousefeed.azurewebsites.net
+nataliia.khoronzhuk@avantipoint.com
+!Q@W#E4r5t6y
+
 
 

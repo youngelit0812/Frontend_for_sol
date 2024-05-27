@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { Button, message, Steps, theme } from "antd";
 import { PublicKey } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Token } from "@solana/spl-token";
 
 import { SelectToken } from "../SelectToken";
 import { SetLiquidity } from "../SetLiquidity";
@@ -30,7 +29,7 @@ export const DEFAULT_DENOMINATOR = 10_000;
 
 export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
   const { connection } = useConnection();
-  const { publicKey, signTransaction } = useWallet();
+  const { publicKey, signTransaction, wallet } = useWallet();
   const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
   const [mintAddresss, setMintAddresss] = useState<string[]>(["", ""]);
@@ -189,6 +188,11 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
 
           const components: LiquidityComponent[] = [
             {
+              account: ataS,
+              mintAddress: mintAddrS,
+              amount: 0.1,
+            },
+            {
               account: ataA,
               mintAddress: mintAddrA,
               amount: 0.1,
@@ -197,12 +201,7 @@ export const CreateLPModal: React.FC<CreateLPProps> = ({ isShow, onClose }) => {
               account: ataB,
               mintAddress: mintAddrB,
               amount: 0.1,
-            },
-            {
-              account: ataS,
-              mintAddress: mintAddrS,
-              amount: 0.1,
-            },
+            },            
           ];
 
           if (signTransaction) {

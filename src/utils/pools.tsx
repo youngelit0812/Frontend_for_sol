@@ -8,7 +8,7 @@ import {
 } from "@solana/web3.js";
 //   import { sendTransaction, useConnection } from "./connection";
 import { useEffect, useState } from "react";
-import {
+import {  
   Token,
   MintLayout,
   AccountLayout,
@@ -877,7 +877,10 @@ async function _addLiquidityNewPool(
         programIds().token,
         new PublicKey(SYSVAR_RENT_PUBKEY),
         programIds().ata,
-        programIds().swap
+        programIds().swap,
+        components[0].amount,
+        components[1].amount,
+        components[2].amount,
       )
     );
     console.log("_addLiquidityNewPool 8");
